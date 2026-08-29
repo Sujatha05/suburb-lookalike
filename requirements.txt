@@ -1,0 +1,10 @@
+streamlit
+pandas
+numpy
+scikit-learn
+google-cloud-bigquery
+google-cloud-bigquery-storage
+db-dtypes
+python-dotenv
+faiss-cpu
+google-genai
