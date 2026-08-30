@@ -1,10 +1,19 @@
-streamlit
+# Data processing
 pandas
 numpy
 scikit-learn
+
+# Google BigQuery
 google-cloud-bigquery
 google-cloud-bigquery-storage
 db-dtypes
-python-dotenv
-faiss-cpu
+pyarrow
+
+# Gemini embeddings
 google-genai
+
+# Environment variables
+python-dotenv
+
+# Web application
+streamlit
