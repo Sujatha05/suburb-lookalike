@@ -1,4 +1,4 @@
-from bigquery_client import get_bigquery_client
+from db.bigquery_client import get_bigquery_client
 
 
 client = get_bigquery_client()
@@ -96,20 +96,3 @@ df_nulls = client.query(
 
 print("\nNULL COUNTS")
 print(df_nulls.T)
-
-sql_duplicates = """
-SELECT
-    sa2_name,
-    COUNT(*) AS occurrences
-FROM `demografy.prod_tables.a_master_view`
-GROUP BY sa2_name
-HAVING COUNT(*) > 1
-ORDER BY occurrences DESC
-"""
-
-df_duplicates = client.query(
-    sql_duplicates
-).to_dataframe()
-
-print("\nDUPLICATE SUBURB NAMES")
-print(df_duplicates.head(20))

@@ -17,3 +17,6 @@ python-dotenv
 
 # Web application
 streamlit
+
+faiss-cpu
+plotly
