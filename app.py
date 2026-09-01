@@ -1,4 +1,5 @@
 import streamlit as st
+import atexit
 
 from db.bigquery_client import get_bigquery_client
 from engine.features import (
@@ -14,7 +15,6 @@ st.title("Demografy Suburb Lookalike Finder")
 
 @st.cache_resource
 def load_data():
-
     client = get_bigquery_client()
 
     df = load_features(client)
@@ -23,10 +23,26 @@ def load_data():
 
     X, scaler = standardise_features(df)
 
-    return df, X, scaler
+    # Register cleanup handler to prevent event loop errors
+    def cleanup():
+        try:
+            client.close()
+        except Exception:
+            pass
+
+    atexit.register(cleanup)
+
+    return df, X, scaler, client
 
 
-df, X, scaler = load_data()
+# Suppress event loop closed errors that occur during Streamlit restarts
+import warnings
+warnings.filterwarnings(
+    "ignore",
+    message="Event loop is closed"
+)
+
+df, X, scaler, client = load_data()
 
 
 df["display_name"] = (
