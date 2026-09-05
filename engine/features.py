@@ -3,7 +3,7 @@ from sklearn.preprocessing import StandardScaler
 
 KPI_COLS = [
     f"kpi_{i}_val"
-    for i in range(1, 11)
+    for i in range(1, 17)
 ]
 
 

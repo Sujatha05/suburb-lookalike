@@ -63,7 +63,25 @@ SELECT
     MAX(kpi_9_val) AS kpi_9_max,
 
     MIN(kpi_10_val) AS kpi_10_min,
-    MAX(kpi_10_val) AS kpi_10_max
+    MAX(kpi_10_val) AS kpi_10_max,
+
+    MIN(kpi_11_val) AS kpi_11_min,
+    MAX(kpi_11_val) AS kpi_11_max,
+
+    MIN(kpi_12_val) AS kpi_12_min,
+    MAX(kpi_12_val) AS kpi_12_max,
+
+    MIN(kpi_13_val) AS kpi_13_min,
+    MAX(kpi_13_val) AS kpi_13_max,
+
+    MIN(kpi_14_val) AS kpi_14_min,
+    MAX(kpi_14_val) AS kpi_14_max,
+
+    MIN(kpi_15_val) AS kpi_15_min,
+    MAX(kpi_15_val) AS kpi_15_max, 
+    
+    MIN(kpi_16_val) AS kpi_16_min,
+    MAX(kpi_16_val) AS kpi_16_max
 
 FROM `demografy.prod_tables.a_master_view`
 """
@@ -91,7 +109,13 @@ SELECT
     COUNTIF(kpi_7_val IS NULL) AS kpi_7_nulls,
     COUNTIF(kpi_8_val IS NULL) AS kpi_8_nulls,
     COUNTIF(kpi_9_val IS NULL) AS kpi_9_nulls,
-    COUNTIF(kpi_10_val IS NULL) AS kpi_10_nulls
+    COUNTIF(kpi_10_val IS NULL) AS kpi_10_nulls,
+    COUNTIF(kpi_11_val IS NULL) AS kpi_11_nulls,
+    COUNTIF(kpi_12_val IS NULL) AS kpi_12_nulls,
+    COUNTIF(kpi_13_val IS NULL) AS kpi_13_nulls,
+    COUNTIF(kpi_14_val IS NULL) AS kpi_14_nulls,
+    COUNTIF(kpi_15_val IS NULL) AS kpi_15_nulls,
+    COUNTIF(kpi_16_val IS NULL) AS kpi_16_nulls
 
 FROM `demografy.prod_tables.a_master_view`
 """

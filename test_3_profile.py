@@ -1,9 +1,7 @@
 from db.bigquery_client import get_bigquery_client
+from engine.profiles import generate_all_profiles
+from engine.features import load_features, clean_features
 
-from engine.features import (
-    load_features,
-    clean_features
-)
 
 from engine.profiles import generate_profile
 
@@ -14,9 +12,13 @@ df = load_features(client)
 
 df = clean_features(df)
 
+profiles = generate_all_profiles(df)
 
-karabar = df.iloc[0]
+print("NUMBER OF PROFILES")
+print(len(profiles))
 
-profile = generate_profile(karabar)
+print("\nFIRST PROFILE")
+print(profiles[0])
 
-print(profile)
+print("\nSECOND PROFILE")
+print(profiles[1])
