@@ -1,6 +1,5 @@
 import os
-import base64
-from pathlib import Path
+
 import streamlit as st
 import plotly.graph_objects as go
 
@@ -328,9 +327,7 @@ if "latest_weights" not in st.session_state:
 def show_header():
 
     logo_path = (
-        Path(__file__).parent
-        / "asset"
-        / "demografy_logo.png"
+        "assets/demografy_logo.png"
     )
 
 
@@ -347,13 +344,9 @@ def show_header():
 
         with logo_col:
 
-            logo_data = base64.b64encode(
-                logo_path.read_bytes()
-            ).decode("ascii")
-
-            st.html(
-                f'<img src="data:image/svg+xml;base64,{logo_data}" '
-                f'width="190" alt="Demografy logo">'
+            st.image(
+                logo_path,
+                width=190
             )
 
 
