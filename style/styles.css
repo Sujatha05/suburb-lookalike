@@ -1,0 +1,101 @@
+:root {
+    --brand-primary: #9a66ee;
+    --brand-blue: #5e17eb;
+    --brand-cyan: #8df2ed;
+    --brand-mauve: #cb6ce6;
+    --brand-mint: #d8f2d0;
+    --brand-sky: #cae4fb;
+    --brand-black: #000000;
+    --brand-jet: #272d2d;
+    --brand-grey: #dbdddc;
+    --brand-white: #ffffff;
+    --brand-grey-olive: #818585;
+    --success-green: #379634;
+    --warning-yellow: #fee440;
+    --error-red: #e03616;
+}
+
+.stApp {
+    background-color: var(--brand-white);
+    color: var(--brand-jet);
+}
+
+h1,
+h2,
+h3 {
+    color: var(--brand-jet);
+    font-weight: 700;
+}
+
+.demografy-title {
+    margin-bottom: 0;
+}
+
+section[data-testid="stSidebar"] {
+    background:
+        linear-gradient(
+            180deg,
+            var(--brand-white) 0%,
+            #f7f5fb 100%
+        );
+    border-right: 1px solid var(--brand-grey);
+}
+
+div.stButton > button {
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+div.stButton > button[kind="primary"] {
+    background-color: var(--brand-primary);
+    border-color: var(--brand-primary);
+    color: var(--brand-white);
+}
+
+div.stButton > button[kind="primary"]:hover {
+    background-color: var(--brand-blue);
+    border-color: var(--brand-blue);
+}
+
+div[data-testid="stMetric"] {
+    background-color: #faf9fd;
+    border: 1px solid var(--brand-grey);
+    padding: 16px;
+    border-radius: 10px;
+}
+
+div[data-testid="stDataFrame"] {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.demografy-subtitle {
+    color: var(--brand-grey-olive);
+    font-size: 16px;
+    margin-top: -8px;
+    margin-bottom: 15px;
+}
+
+.demografy-divider {
+    height: 4px;
+    border-radius: 4px;
+    background:
+        linear-gradient(
+            90deg,
+            var(--brand-cyan),
+            var(--brand-primary),
+            var(--brand-mauve)
+        );
+    margin-top: 8px;
+    margin-bottom: 25px;
+}
+
+.demografy-badge {
+    display: inline-block;
+    background-color: var(--brand-primary);
+    color: var(--brand-white);
+    padding: 5px 12px;
+    border-radius: 14px;
+    font-size: 13px;
+    font-weight: 700;
+}

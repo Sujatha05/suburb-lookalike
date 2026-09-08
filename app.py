@@ -98,174 +98,50 @@ st.set_page_config(
 
 
 # ============================================================
-# DEMOGRAFY BRAND COLOURS
+# EXTERNAL STYLESHEET
 # ============================================================
 
-BRAND_PRIMARY = "#9a66ee"
-BRAND_BLUE = "#5e17eb"
-BRAND_CYAN = "#8df2ed"
-BRAND_MAUVE = "#cb6ce6"
+def load_css():
 
-BRAND_MINT = "#d8f2d0"
-BRAND_SKY = "#cae4fb"
+    css_path = (
+        Path(__file__).parent
+        / "style"
+        / "style.css"
+    )
 
-BRAND_BLACK = "#000000"
-BRAND_JET = "#272d2d"
-BRAND_GREY = "#dbdddc"
-BRAND_WHITE = "#ffffff"
-BRAND_GREY_OLIVE = "#818585"
+    if css_path.exists():
 
-SUCCESS_GREEN = "#379634"
-WARNING_YELLOW = "#fee440"
-ERROR_RED = "#e03616"
+        with open(
+            css_path,
+            "r",
+            encoding="utf-8"
+        ) as css_file:
+
+            st.markdown(
+                f"<style>{css_file.read()}</style>",
+                unsafe_allow_html=True
+            )
+
+    else:
+
+        st.warning(
+            f"CSS file not found: {css_path}"
+        )
+
+
+load_css()
 
 
 # ============================================================
-# DEMOGRAFY CSS
+# PLOTLY CHART COLOURS
 # ============================================================
+# Plotly styling is Python chart configuration, not CSS.
 
-st.markdown(
-    f"""
-    <style>
-
-    .stApp {{
-        background-color: {BRAND_WHITE};
-        color: {BRAND_JET};
-    }}
-
-    h1, h2, h3 {{
-        color: {BRAND_JET};
-        font-weight: 700;
-    }}
-
-    section[data-testid="stSidebar"] {{
-        background:
-            linear-gradient(
-                180deg,
-                {BRAND_WHITE} 0%,
-                #f7f5fb 100%
-            );
-
-        border-right:
-            1px solid {BRAND_GREY};
-    }}
-
-    div.stButton > button {{
-        border-radius: 8px;
-        font-weight: 600;
-    }}
-
-    div.stButton > button[kind="primary"] {{
-        background-color:
-            {BRAND_PRIMARY};
-
-        border-color:
-            {BRAND_PRIMARY};
-
-        color:
-            {BRAND_WHITE};
-    }}
-
-    div.stButton >
-    button[kind="primary"]:hover {{
-
-        background-color:
-            {BRAND_BLUE};
-
-        border-color:
-            {BRAND_BLUE};
-    }}
-
-    div[data-testid="stMetric"] {{
-
-        background-color:
-            #faf9fd;
-
-        border:
-            1px solid {BRAND_GREY};
-
-        padding:
-            16px;
-
-        border-radius:
-            10px;
-    }}
-
-    div[data-testid="stDataFrame"] {{
-
-        border-radius:
-            10px;
-
-        overflow:
-            hidden;
-    }}
-
-    .demografy-subtitle {{
-
-        color:
-            {BRAND_GREY_OLIVE};
-
-        font-size:
-            16px;
-
-        margin-top:
-            -8px;
-
-        margin-bottom:
-            15px;
-    }}
-
-    .demografy-divider {{
-
-        height:
-            4px;
-
-        border-radius:
-            4px;
-
-        background:
-            linear-gradient(
-                90deg,
-                {BRAND_CYAN},
-                {BRAND_PRIMARY},
-                {BRAND_MAUVE}
-            );
-
-        margin-top:
-            8px;
-
-        margin-bottom:
-            25px;
-    }}
-
-    .demografy-badge {{
-
-        display:
-            inline-block;
-
-        background-color:
-            {BRAND_PRIMARY};
-
-        color:
-            {BRAND_WHITE};
-
-        padding:
-            5px 12px;
-
-        border-radius:
-            14px;
-
-        font-size:
-            13px;
-
-        font-weight:
-            700;
-    }}
-
-    </style>
-    """,
-    unsafe_allow_html=True
-)
+PLOT_PRIMARY = "#9a66ee"
+PLOT_CYAN = "#8df2ed"
+PLOT_JET = "#272d2d"
+PLOT_GREY = "#dbdddc"
+PLOT_WHITE = "#ffffff"
 
 
 # ============================================================
@@ -361,9 +237,7 @@ def show_header():
 
             st.markdown(
                 """
-                <h1 style="
-                    margin-bottom:0;
-                ">
+                <h1 class="demografy-title">
                     Suburb Lookalike Finder
                 </h1>
 
@@ -1524,7 +1398,7 @@ if (
             name=reference_name,
 
             line=dict(
-                color=BRAND_PRIMARY,
+                color=PLOT_PRIMARY,
                 width=3
             ),
 
@@ -1550,7 +1424,7 @@ if (
             name=candidate_name,
 
             line=dict(
-                color=BRAND_CYAN,
+                color=PLOT_CYAN,
                 width=3
             ),
 
@@ -1567,7 +1441,7 @@ if (
 
         polar=dict(
 
-            bgcolor=BRAND_WHITE,
+            bgcolor=PLOT_WHITE,
 
             radialaxis=dict(
 
@@ -1579,24 +1453,24 @@ if (
                 ],
 
                 gridcolor=
-                    BRAND_GREY,
+                    PLOT_GREY,
 
                 linecolor=
-                    BRAND_GREY
+                    PLOT_GREY
             ),
 
             angularaxis=dict(
 
                 gridcolor=
-                    BRAND_GREY
+                    PLOT_GREY
             )
         ),
 
         paper_bgcolor=
-            BRAND_WHITE,
+            PLOT_WHITE,
 
         font=dict(
-            color=BRAND_JET
+            color=PLOT_JET
         ),
 
         legend=dict(
