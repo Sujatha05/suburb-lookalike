@@ -106,7 +106,7 @@ def load_css():
     css_path = (
         Path(__file__).parent
         / "style"
-        / "style.css"
+        / "styles.css"
     )
 
     if css_path.exists():
