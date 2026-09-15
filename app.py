@@ -84,6 +84,10 @@ from auth.rbac import (
     get_lookups_remaining
 )
 
+from engine.index import (
+    build_faiss_index,
+    faiss_find_top_n
+)
 
 # ============================================================
 # PAGE CONFIGURATION
@@ -815,7 +819,7 @@ alpha = (
 
         max_value=1.0,
 
-        value=0.5,
+        value=0.2,
 
         step=0.05,
 
@@ -1050,13 +1054,20 @@ if find_clicked:
         "Finding similar suburbs..."
     ):
 
-        results = (
-            find_top_n(
-                df,
-                X_hybrid,
-                reference_index,
-                n=top_n
-            )
+        
+# Rebuild FAISS index because feature weights
+# and alpha can change the hybrid vectors.
+       
+        faiss_index, X_faiss = build_faiss_index(
+            X_hybrid
+        )
+
+        results = faiss_find_top_n(
+            df,
+            faiss_index,
+            X_faiss,
+            reference_index,
+            n=top_n
         )
 
 
