@@ -1,0 +1,208 @@
+/* ============================================================
+   DEMOGRAFY BRANDING
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   Font
+   ------------------------------------------------------------ */
+
+@import url(
+    'https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap'
+);
+
+html,
+body,
+[class*="css"] {
+    font-family: 'Open Sans', sans-serif;
+}
+
+
+/* ------------------------------------------------------------
+   Application background
+   ------------------------------------------------------------ */
+
+.stApp {
+    background:
+        radial-gradient(
+            circle at 10% 10%,
+            rgba(141, 242, 237, 0.25),
+            transparent 30%
+        ),
+        radial-gradient(
+            circle at 90% 15%,
+            rgba(203, 108, 230, 0.18),
+            transparent 28%
+        ),
+        #ffffff;
+}
+
+
+/* ------------------------------------------------------------
+   Hide Streamlit chrome
+   ------------------------------------------------------------ */
+
+#MainMenu {
+    visibility: hidden;
+}
+
+footer {
+    visibility: hidden;
+}
+
+header {
+    visibility: hidden;
+}
+
+
+           
+
+.brand-logo {
+    text-align: center;
+    font-size: 42px;
+    font-weight: 700;
+    letter-spacing: -2px;
+    color: #272d2d;
+    margin-bottom: 5px;
+}
+
+.brand-logo span {
+    color: #9a66ee;
+}
+
+.login-title {
+    text-align: center;
+    color: #272d2d;
+    font-size: 26px;
+    font-weight: 700;
+    margin-top: 10px;
+    margin-bottom: 8px;
+}
+
+.login-subtitle {
+    text-align: center;
+    color: #818585;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+.login-help {
+    text-align: center;
+    color: #818585;
+    font-size: 12px;
+    margin-top: 14px;
+}
+
+
+/* ------------------------------------------------------------
+   Application
+   ------------------------------------------------------------ */
+
+.app-title {
+    color: #272d2d;
+    font-size: 32px;
+    font-weight: 700;
+}
+
+.app-subtitle {
+    color: #818585;
+    font-size: 15px;
+    margin-bottom: 20px;
+}
+
+
+/* ------------------------------------------------------------
+   Tier card
+   ------------------------------------------------------------ */
+
+.tier-card {
+    background:
+        linear-gradient(
+            135deg,
+            #8df2ed,
+            #9a66ee
+        );
+
+    color: white;
+    border-radius: 16px;
+    padding: 18px 22px;
+    margin-bottom: 20px;
+}
+
+.tier-name {
+    font-size: 13px;
+    opacity: 0.9;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.tier-value {
+    font-size: 26px;
+    font-weight: 700;
+}
+
+
+/* ------------------------------------------------------------
+   Buttons
+   ------------------------------------------------------------ */
+
+div.stButton > button {
+    width: 100%;
+    border-radius: 12px;
+    border: none;
+    background: #5e17eb;
+    color: white;
+    font-weight: 600;
+    min-height: 44px;
+}
+
+div.stButton > button:hover {
+    background: #9a66ee;
+    color: white;
+}
+
+
+/* ------------------------------------------------------------
+   Form submit button
+   ------------------------------------------------------------ */
+
+div.stFormSubmitButton > button {
+    width: 100%;
+    border-radius: 12px;
+    border: none;
+    background: #5e17eb;
+    color: white;
+    font-weight: 600;
+    min-height: 44px;
+}
+
+div.stFormSubmitButton > button:hover {
+    background: #9a66ee;
+    color: white;
+}
+
+
+/* ------------------------------------------------------------
+   Text input
+   ------------------------------------------------------------ */
+
+.stTextInput input {
+    border-radius: 12px !important;
+    border: 1px solid #dbdddc !important;
+}
+
+.stTextInput input:focus {
+    border-color: #9a66ee !important;
+    box-shadow: 0 0 0 1px #9a66ee !important;
+}
+
+
+/* ------------------------------------------------------------
+   Footer
+   ------------------------------------------------------------ */
+
+.footer-text {
+    text-align: center;
+    color: #818585;
+    font-size: 11px;
+    margin-top: 20px;
+}
