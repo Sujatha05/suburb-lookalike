@@ -5,97 +5,349 @@
     --brand-mauve: #cb6ce6;
     --brand-mint: #d8f2d0;
     --brand-sky: #cae4fb;
-    --brand-black: #000000;
-    --brand-jet: #272d2d;
-    --brand-grey: #dbdddc;
+    --brand-jet: #17233c;
+    --brand-grey: #e5e9f0;
     --brand-white: #ffffff;
-    --brand-grey-olive: #818585;
-    --success-green: #379634;
-    --warning-yellow: #fee440;
-    --error-red: #e03616;
+    --muted: #6f7b91;
+    --page: #f7f9fc;
+    --soft-purple: #f3efff;
+    --success: #379634;
+    --warning: #f5b700;
+    --danger: #e03616;
 }
 
-.stApp {
-    background-color: var(--brand-white);
-    color: var(--brand-jet);
-}
+/* Page */
+.stApp { background: var(--page); color: var(--brand-jet); }
+.block-container { max-width: 1580px; padding-top: 1rem; padding-bottom: 2rem; }
+h1, h2, h3 { color: var(--brand-jet); font-weight: 700; }
 
-h1,
-h2,
-h3 {
-    color: var(--brand-jet);
-    font-weight: 700;
-}
+/* Hide default Streamlit chrome */
+#MainMenu { visibility: hidden; }
+footer { visibility: hidden; }
 
-.demografy-title {
-    margin-bottom: 0;
-}
-
-section[data-testid="stSidebar"] {
-    background:
-        linear-gradient(
-            180deg,
-            var(--brand-white) 0%,
-            #f7f5fb 100%
-        );
-    border-right: 1px solid var(--brand-grey);
-}
-
-div.stButton > button {
-    border-radius: 8px;
-    font-weight: 600;
-}
-
-div.stButton > button[kind="primary"] {
-    background-color: var(--brand-primary);
-    border-color: var(--brand-primary);
-    color: var(--brand-white);
-}
-
-div.stButton > button[kind="primary"]:hover {
-    background-color: var(--brand-blue);
-    border-color: var(--brand-blue);
-}
-
-div[data-testid="stMetric"] {
-    background-color: #faf9fd;
+/* Header */
+.demografy-topbar {
+    background: #fff;
     border: 1px solid var(--brand-grey);
-    padding: 16px;
-    border-radius: 10px;
+    border-radius: 16px;
+    padding: 14px 18px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(23,35,60,.05);
+}
+.demografy-title { margin: 0; font-size: 1.75rem; line-height: 1.15; }
+.demografy-subtitle { color: var(--muted); font-size: .92rem; margin-top: 4px; }
+.demografy-eyebrow { color: var(--brand-primary); font-size: .72rem; font-weight: 800; letter-spacing: .22em; text-transform: uppercase; }
+
+/* Login */
+.login-shell { max-width: 520px; margin: 7vh auto 0 auto; }
+.login-brand { text-align: center; margin-bottom: 18px; }
+.login-title { font-size: 2rem; font-weight: 800; color: var(--brand-jet); margin: 6px 0; }
+.login-subtitle { color: var(--muted); font-size: .95rem; }
+.login-note { background: var(--soft-purple); border: 1px solid #ded4fb; border-radius: 12px; padding: 12px 14px; color: #554478; font-size: .88rem; margin: 12px 0 18px; }
+
+/* Sidebar */
+section[data-testid="stSidebar"] { background: #fff; border-right: 1px solid var(--brand-grey); }
+section[data-testid="stSidebar"] > div { padding-top: 1rem; }
+.sidebar-card { background: #fff; border: 1px solid var(--brand-grey); border-radius: 14px; padding: 13px 14px; margin-bottom: 12px; }
+.account-card { background: #eef5ff; border: 1px solid #d4e5ff; border-radius: 12px; padding: 12px; margin-bottom: 10px; }
+.account-line { font-weight: 700; color: var(--brand-jet); }
+.account-small { color: #55708f; font-size: .82rem; }
+.demografy-badge { display:inline-block; background:var(--soft-purple); color:var(--brand-blue); border:1px solid #cbbcf7; padding:3px 9px; border-radius:9px; font-size:.72rem; font-weight:800; }
+
+/* Section labels */
+.sidebar-label, .section-label { color: var(--brand-primary); font-size: .72rem; font-weight: 800; letter-spacing: .20em; text-transform: uppercase; margin: 8px 0 10px; }
+
+/* Controls */
+div[data-baseweb="select"] > div, div[data-baseweb="input"] > div { border-radius: 10px !important; border-color: #dfe5ed !important; background: #fbfcfe !important; }
+.stSlider [data-baseweb="slider"] { margin-top: 2px; }
+
+/* Buttons */
+div.stButton > button { border-radius: 9px; font-weight: 700; min-height: 38px; border: 1px solid #d7dce5; }
+div.stButton > button[kind="primary"] { background: var(--brand-primary); border-color: var(--brand-primary); color: #fff; }
+div.stButton > button[kind="primary"]:hover { background: var(--brand-blue); border-color: var(--brand-blue); color:#fff; }
+/* Preset buttons */
+[data-testid="stSidebar"] div[data-testid="stHorizontalBlock"] div.stButton > button { padding: .35rem .42rem; font-size: .75rem; min-height: 34px; width: 100%; }
+
+/* Metric cards */
+div[data-testid="stMetric"] { background:#fff; border:1px solid var(--brand-grey); padding:14px 16px; border-radius:14px; box-shadow:0 1px 3px rgba(23,35,60,.04); min-height:92px; }
+div[data-testid="stMetricLabel"] { color:var(--muted); font-size:.78rem; letter-spacing:.04em; }
+div[data-testid="stMetricValue"] { color:var(--brand-jet); font-weight:800; }
+
+/* Results / cards */
+.content-card { background:#fff; border:1px solid var(--brand-grey); border-radius:16px; padding:18px 20px; margin:10px 0 16px; box-shadow:0 1px 3px rgba(23,35,60,.04); }
+.results-title { font-size:1.18rem; font-weight:800; color:var(--brand-jet); }
+.results-subtitle { color:var(--muted); font-size:.88rem; margin-top:2px; }
+
+/* Dataframes */
+div[data-testid="stDataFrame"] { border:1px solid var(--brand-grey); border-radius:14px; overflow:hidden; background:#fff; }
+
+/* Expanders */
+div[data-testid="stExpander"] { border:1px solid var(--brand-grey); border-radius:12px; background:#fff; }
+
+/* Alerts */
+div[data-testid="stAlert"] { border-radius:12px; }
+
+/* Divider */
+.demografy-divider { height:3px; border-radius:4px; background:linear-gradient(90deg,var(--brand-cyan),var(--brand-primary),var(--brand-mauve)); margin:10px 0 18px; }
+
+/* Responsive */
+@media (max-width: 900px) {
+    .block-container { padding-left: .8rem; padding-right: .8rem; }
+    .demografy-title { font-size: 1.4rem; }
 }
 
-div[data-testid="stDataFrame"] {
-    border-radius: 10px;
-    overflow: hidden;
+/* =========================================================
+   SECOND-PASS DASHBOARD POLISH
+   ========================================================= */
+
+/* Tighter overall canvas */
+.block-container {
+    max-width: 1500px;
+    padding-top: .55rem;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
 }
 
-.demografy-subtitle {
-    color: var(--brand-grey-olive);
-    font-size: 16px;
-    margin-top: -8px;
-    margin-bottom: 15px;
+/* Streamlit's top toolbar remains usable, but reduce visual space */
+[data-testid="stHeader"] {
+    background: transparent;
 }
 
-.demografy-divider {
-    height: 4px;
-    border-radius: 4px;
-    background:
-        linear-gradient(
-            90deg,
-            var(--brand-cyan),
-            var(--brand-primary),
-            var(--brand-mauve)
-        );
-    margin-top: 8px;
-    margin-bottom: 25px;
+/* Slim application header. The logo is rendered by st.image for reliability. */
+[data-testid="stMainBlockContainer"] > div:first-child {
+    gap: .65rem;
 }
-
-.demografy-badge {
-    display: inline-block;
-    background-color: var(--brand-primary);
-    color: var(--brand-white);
-    padding: 5px 12px;
-    border-radius: 14px;
-    font-size: 13px;
+.header-title {
+    font-size: 1.55rem;
+    line-height: 1.1;
+    font-weight: 760;
+    color: var(--brand-jet);
+    margin: 0;
+}
+.header-subtitle {
+    color: var(--muted);
+    font-size: .82rem;
+    margin-top: 4px;
+}
+.header-user {
+    text-align: right;
+    color: var(--brand-jet);
+    font-size: .82rem;
     font-weight: 700;
+}
+.header-rule {
+    height: 1px;
+    background: var(--brand-grey);
+    margin: .25rem 0 .9rem;
+}
+.brand-wordmark {
+    color: var(--brand-jet);
+    font-size: 1.35rem;
+    font-weight: 800;
+}
+
+/* Sidebar: tighter rhythm */
+section[data-testid="stSidebar"] > div {
+    padding-top: .35rem;
+}
+section[data-testid="stSidebar"] [data-testid="stVerticalBlock"] {
+    gap: .55rem;
+}
+section[data-testid="stSidebar"] hr {
+    margin: .7rem 0;
+}
+section[data-testid="stSidebar"] h3 {
+    font-size: 1rem;
+    margin-top: .25rem;
+    margin-bottom: .1rem;
+}
+section[data-testid="stSidebar"] label,
+section[data-testid="stSidebar"] p {
+    font-size: .80rem;
+}
+.sidebar-label {
+    margin: 5px 0 5px;
+}
+.account-card {
+    padding: 10px 11px;
+    margin-bottom: 4px;
+}
+
+/* Presets: force compact single-line labels */
+[data-testid="stSidebar"] div[data-testid="stHorizontalBlock"] {
+    gap: .28rem;
+}
+[data-testid="stSidebar"] div[data-testid="stHorizontalBlock"] div.stButton > button {
+    padding: .25rem .12rem !important;
+    min-height: 32px !important;
+    height: 32px;
+    font-size: .64rem !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+    overflow: hidden;
+    text-overflow: clip;
+    border-radius: 8px;
+}
+
+/* Active preset uses Streamlit primary button styling */
+[data-testid="stSidebar"] div[data-testid="stHorizontalBlock"] div.stButton > button[kind="primary"] {
+    background: var(--brand-primary);
+    border-color: var(--brand-primary);
+    color: #fff;
+}
+
+/* Compact sliders */
+section[data-testid="stSidebar"] [data-testid="stSlider"] {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+/* Search overview cards */
+.summary-card {
+    background: #fff;
+    border: 1px solid var(--brand-grey);
+    border-radius: 13px;
+    padding: 13px 15px 12px;
+    min-height: 98px;
+    box-shadow: 0 1px 3px rgba(23,35,60,.035);
+}
+.summary-label {
+    color: var(--muted);
+    font-size: .72rem;
+    font-weight: 650;
+    margin-bottom: 7px;
+}
+.summary-value {
+    color: var(--brand-jet);
+    font-size: 1.55rem;
+    line-height: 1.05;
+    font-weight: 800;
+    white-space: nowrap;
+}
+.summary-suburb {
+    font-size: 1.28rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.summary-detail {
+    color: var(--muted);
+    font-size: .75rem;
+    margin-top: 7px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Search action */
+[data-testid="stMain"] div.stButton > button[kind="primary"] {
+    min-width: 170px;
+    min-height: 38px;
+    padding: .45rem 1rem;
+}
+
+/* Useful pre-search state instead of a large blank canvas */
+.empty-state {
+    background: #fff;
+    border: 1px dashed #cfd6e2;
+    border-radius: 15px;
+    padding: 34px 24px;
+    margin-top: 14px;
+    text-align: center;
+}
+.empty-icon {
+    width: 42px;
+    height: 42px;
+    margin: 0 auto 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: var(--soft-purple);
+    color: var(--brand-primary);
+    font-size: 1.45rem;
+    font-weight: 800;
+}
+.empty-title {
+    color: var(--brand-jet);
+    font-size: 1.05rem;
+    font-weight: 800;
+    margin-bottom: 5px;
+}
+.empty-copy {
+    color: var(--muted);
+    font-size: .84rem;
+    max-width: 620px;
+    margin: 0 auto;
+}
+
+/* Results should visually dominate once present */
+.content-card {
+    padding: 14px 17px;
+    margin-top: 12px;
+    margin-bottom: 10px;
+}
+.results-title {
+    font-size: 1.08rem;
+}
+
+/* Login polish */
+.login-shell {
+    max-width: 470px;
+    margin-top: 1.5rem;
+}
+.login-brand {
+    margin-bottom: 10px;
+}
+.login-title {
+    font-size: 1.65rem;
+}
+
+/* Responsive fallback */
+@media (max-width: 1050px) {
+    .summary-value { font-size: 1.25rem; }
+    .summary-suburb { font-size: 1.05rem; }
+    [data-testid="stSidebar"] div[data-testid="stHorizontalBlock"] div.stButton > button {
+        font-size: .58rem !important;
+    }
+}
+/* =========================================================
+   LOGO FALLBACK
+   ========================================================= */
+
+.logo-fallback {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 48px;
+}
+
+.logo-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 34px;
+    height: 34px;
+
+    border-radius: 10px;
+
+    background: linear-gradient(
+        135deg,
+        #8df2ed,
+        #5e17eb
+    );
+
+    color: #ffffff;
+
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.logo-text {
+    color: #17233c;
+
+    font-size: 23px;
+    font-weight: 700;
+
+    letter-spacing: -0.5px;
 }

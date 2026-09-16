@@ -1,5 +1,4 @@
 import os
-import base64
 from pathlib import Path
 import streamlit as st
 import plotly.graph_objects as go
@@ -54,11 +53,6 @@ from engine.fusion import (
     fuse_vectors
 )
 
-from engine.similarity import (
-    find_top_n
-)
-
-
 # ============================================================
 # EXPLAINABILITY
 # ============================================================
@@ -88,6 +82,7 @@ from engine.index import (
     build_faiss_index,
     faiss_find_top_n
 )
+
 
 # ============================================================
 # PAGE CONFIGURATION
@@ -213,77 +208,43 @@ def show_header():
         / "demografy_logo.png"
     )
 
+    header = st.container()
 
-    if os.path.exists(
-        logo_path
-    ):
-
-        logo_col, title_col = (
-            st.columns(
-                [1.3, 5]
-            )
-        )
-
+    with header:
+        logo_col, title_col, user_col = st.columns([1.15, 4.8, 1.2], vertical_alignment="center")
 
         with logo_col:
-
-            logo_data = base64.b64encode(
-                logo_path.read_bytes()
-            ).decode("ascii")
-
-            st.html(
-                f'<img src="data:image/svg+xml;base64,{logo_data}" '
-                f'width="190" alt="Demografy logo">'
-            )
-
+            try:
+                if logo_path.exists() and logo_path.is_file():
+                    st.image(str(logo_path), width=170)
+                else:
+                    raise FileNotFoundError("Logo file not found")
+            except Exception:
+                # Keep the application usable even if the supplied
+                # logo file is missing or is not a valid image.
+                st.markdown(
+                    '<div class="brand-wordmark">Demografy</div>',
+                    unsafe_allow_html=True
+                )
 
         with title_col:
-
             st.markdown(
                 """
-                <h1 class="demografy-title">
-                    Suburb Lookalike Finder
-                </h1>
-
-                <div class="
-                    demografy-subtitle
-                ">
-                    Hybrid demographic
-                    similarity search
-                </div>
+                <div class="header-title">Suburb Lookalike Finder</div>
+                <div class="header-subtitle">16-KPI hybrid demographic similarity · Gemini embeddings · FAISS</div>
                 """,
                 unsafe_allow_html=True
             )
 
-    else:
+        with user_col:
+            if st.session_state.get("logged_in") and st.session_state.get("user"):
+                current_user = st.session_state["user"]
+                st.markdown(
+                    f'<div class="header-user">{current_user["user_id"]}</div>',
+                    unsafe_allow_html=True
+                )
 
-        st.markdown(
-            """
-            <h1>
-                Suburb Lookalike Finder
-            </h1>
-
-            <div class="
-                demografy-subtitle
-            ">
-                Discover Australian suburbs
-                with similar demographic
-                characteristics
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-
-    st.markdown(
-        """
-        <div class="
-            demografy-divider
-        ">
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+    st.markdown('<div class="header-rule"></div>', unsafe_allow_html=True)
 
 
 # ============================================================
@@ -294,120 +255,82 @@ if not st.session_state[
     "logged_in"
 ]:
 
-    show_header()
-
-
-    st.subheader(
-        "Sign in"
+    logo_path = (
+        Path(__file__).parent
+        / "asset"
+        / "demografy_logo.png"
     )
 
+    logo_html = ""
 
-    st.caption(
-        "Enter your Demografy user ID "
-        "to continue."
-    )
-
-
-    user_id = st.text_input(
-        "User ID",
-        placeholder="e.g. user_001"
-    )
-
-
-    login_clicked = st.button(
-        "Login",
-        type="primary"
-    )
-
-
-    if login_clicked:
-
-        entered_user_id = (
-            user_id.strip()
-        )
-
-
-        if not entered_user_id:
-
-            st.warning(
-                "Please enter your "
-                "user ID."
+    login_logo_left, login_logo_mid, login_logo_right = st.columns([1, 1.1, 1])
+    with login_logo_mid:
+        try:
+            if logo_path.exists() and logo_path.is_file():
+                st.image(str(logo_path), width=220)
+            else:
+                raise FileNotFoundError("Logo file not found")
+        except Exception:
+            st.markdown(
+                '<div class="login-wordmark">Demografy</div>',
+                unsafe_allow_html=True
             )
 
-        else:
+    st.markdown(
+        f"""
+        <div class="login-shell">
+            <div class="login-brand">
+                <div class="login-title">Suburb Lookalike Finder</div>
+                <div class="login-subtitle">Sign in to discover Australian suburbs with similar demographic profiles.</div>
+            </div>
+            <div class="login-note">Access is controlled by your Demografy user ID and subscription tier.</div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
-            try:
+    login_left, login_mid, login_right = st.columns([1.2, 1, 1.2])
 
-                client = (
-                    get_bigquery_client()
-                )
+    with login_mid:
+        user_id = st.text_input(
+            "User ID",
+            placeholder="e.g. user_001"
+        )
 
+        login_clicked = st.button(
+            "Sign in",
+            type="primary",
+            use_container_width=True
+        )
 
-                user = get_user(
-                    client,
-                    entered_user_id
-                )
+        if login_clicked:
+            entered_user_id = user_id.strip()
 
+            if not entered_user_id:
+                st.warning("Please enter your user ID.")
+            else:
+                try:
+                    client = get_bigquery_client()
+                    user = get_user(client, entered_user_id)
 
-                if user is None:
+                    if user is None:
+                        st.error("Invalid user ID or inactive account.")
+                    else:
+                        try:
+                            get_tier_config(user["tier"])
+                        except ValueError:
+                            st.error("This account has an unsupported tier.")
+                            st.stop()
 
-                    st.error(
-                        "Invalid user ID "
-                        "or inactive account."
-                    )
+                        st.session_state["logged_in"] = True
+                        st.session_state["user"] = user
+                        st.session_state["lookup_count"] = 0
+                        st.session_state["latest_results"] = None
+                        st.rerun()
 
-                else:
-
-                    try:
-
-                        get_tier_config(
-                            user["tier"]
-                        )
-
-                    except ValueError:
-
-                        st.error(
-                            "This account has "
-                            "an unsupported tier."
-                        )
-
-                        st.stop()
-
-
-                    st.session_state[
-                        "logged_in"
-                    ] = True
-
-
-                    st.session_state[
-                        "user"
-                    ] = user
-
-
-                    st.session_state[
-                        "lookup_count"
-                    ] = 0
-
-
-                    st.session_state[
-                        "latest_results"
-                    ] = None
-
-
-                    st.rerun()
-
-
-            except Exception as exc:
-
-                st.error(
-                    "Unable to complete "
-                    "login."
-                )
-
-                st.exception(
-                    exc
-                )
-
+                except Exception as exc:
+                    st.error("Unable to complete login.")
+                    st.exception(exc)
 
     st.stop()
 
@@ -554,148 +477,42 @@ show_header()
 
 
 # ============================================================
-# SIDEBAR ACCOUNT INFORMATION
+# SIDEBAR ACCOUNT / LOOKUP STATUS
 # ============================================================
 
-st.sidebar.header(
-    "Account"
-)
+lookup_count = st.session_state["lookup_count"]
+remaining = get_lookups_remaining(tier, lookup_count)
+lookup_allowed = can_lookup(tier, lookup_count)
+warning_at = tier_config["warning_at"]
 
+with st.sidebar:
+    st.markdown('<div class="sidebar-label">Account</div>', unsafe_allow_html=True)
 
-st.sidebar.write(
-    f"**User:** "
-    f"{user['user_id']}"
-)
-
-
-st.sidebar.write(
-    f"**Tier:** "
-    f"{tier.title()}"
-)
-
-
-if tier == "pro":
-
-    st.sidebar.markdown(
-        """
-        <span class="
-            demografy-badge
-        ">
-            PRO
-        </span>
+    badge = ' <span class="demografy-badge">PRO</span>' if tier == "pro" else ""
+    st.markdown(
+        f"""
+        <div class="account-card">
+            <div class="account-line">{user['user_id']} · {tier.title()} {badge}</div>
+            <div class="account-small">{remaining} / {tier_config['lookup_limit']} lookups left</div>
+        </div>
         """,
         unsafe_allow_html=True
     )
 
+    if warning_at is not None and lookup_count >= warning_at and lookup_allowed:
+        st.warning(f"You have {remaining} lookups remaining this session.")
 
-st.sidebar.divider()
+    if not lookup_allowed:
+        st.error("Lookup limit reached.")
+        if tier == "free":
+            st.info("Upgrade your plan for additional lookups and more matches.")
 
+    if st.button("Logout", use_container_width=True):
+        st.session_state.clear()
+        st.rerun()
 
-# ============================================================
-# LOOKUP COUNTER
-# ============================================================
-
-lookup_count = (
-    st.session_state[
-        "lookup_count"
-    ]
-)
-
-
-remaining = (
-    get_lookups_remaining(
-        tier,
-        lookup_count
-    )
-)
-
-
-lookup_allowed = (
-    can_lookup(
-        tier,
-        lookup_count
-    )
-)
-
-
-st.sidebar.metric(
-    "Lookups Remaining",
-    remaining
-)
-
-
-st.sidebar.caption(
-    f"Used this session: "
-    f"{lookup_count} / "
-    f"{tier_config['lookup_limit']}"
-)
-
-
-# ============================================================
-# TIER WARNINGS
-# ============================================================
-
-warning_at = (
-    tier_config[
-        "warning_at"
-    ]
-)
-
-
-if (
-    warning_at is not None
-    and
-    lookup_count >= warning_at
-    and
-    lookup_allowed
-):
-
-    st.sidebar.warning(
-        f"You have {remaining} "
-        "lookups remaining "
-        "this session."
-    )
-
-
-if not lookup_allowed:
-
-    st.sidebar.error(
-        "Lookup limit reached."
-    )
-
-
-    if tier == "free":
-
-        st.sidebar.info(
-            "Upgrade your plan for "
-            "additional lookups and "
-            "more matches."
-        )
-
-
-# ============================================================
-# LOGOUT
-# ============================================================
-
-if st.sidebar.button(
-    "Logout"
-):
-
-    st.session_state.clear()
-
-    st.rerun()
-
-
-st.sidebar.divider()
-
-
-# ============================================================
-# SEARCH SETTINGS
-# ============================================================
-
-st.sidebar.header(
-    "Search Settings"
-)
+    st.divider()
+    st.markdown('<div class="sidebar-label">Lookup</div>', unsafe_allow_html=True)
 
 
 # ============================================================
@@ -841,113 +658,85 @@ st.sidebar.caption(
 
 
 # ============================================================
-# PRO PRESETS
+# PRO PRESETS - COMPACT ONE-LINE BUTTONS
 # ============================================================
 
-if tier_config[
-    "presets_enabled"
-]:
+if tier_config["presets_enabled"]:
 
-    st.sidebar.subheader(
-        "Weight Preset"
+    st.sidebar.markdown(
+        '<div class="sidebar-label">Presets</div>',
+        unsafe_allow_html=True
     )
 
+    # Keep labels short so all four buttons remain on one line.
+    preset_labels = {
+        "Balanced": "Balanced",
+        "Family-focused": "Family",
+        "Investor": "Investor",
+        "Lifestyle": "Lifestyle",
+    }
 
-    preset_name = (
-        st.sidebar.selectbox(
+    available_presets = [
+        name for name in preset_labels
+        if name in WEIGHT_PRESETS
+    ]
 
-            "Choose preset",
+    # Include any extra preset names without breaking the application.
+    for name in WEIGHT_PRESETS:
+        if name not in available_presets:
+            available_presets.append(name)
+            preset_labels[name] = name
 
-            options=list(
-                WEIGHT_PRESETS.keys()
-            ),
+    preset_cols = st.sidebar.columns(len(available_presets), gap="small")
+    active_preset = st.session_state.get("current_preset", "Balanced")
 
-            disabled=not lookup_allowed
-        )
+    for preset_col, preset_name in zip(preset_cols, available_presets):
+        with preset_col:
+            is_active = preset_name == active_preset
+            if st.button(
+                preset_labels[preset_name],
+                key=f"preset_btn_{preset_name}",
+                disabled=not lookup_allowed,
+                use_container_width=True,
+                type="primary" if is_active else "secondary"
+            ):
+                preset_weights = get_preset(preset_name)
+
+                for kpi in KPI_COLS:
+                    st.session_state[f"weight_{kpi}"] = preset_weights[kpi]
+
+                st.session_state["current_preset"] = preset_name
+                st.rerun()
+
+    st.sidebar.caption(
+        f"Active preset: {preset_labels.get(active_preset, active_preset)}"
     )
-
-
-    if st.sidebar.button(
-        "Apply Preset",
-        disabled=not lookup_allowed
-    ):
-
-        preset_weights = (
-            get_preset(
-                preset_name
-            )
-        )
-
-
-        for kpi in KPI_COLS:
-
-            st.session_state[
-                f"weight_{kpi}"
-            ] = preset_weights[
-                kpi
-            ]
-
-
-        st.session_state[
-            "current_preset"
-        ] = preset_name
-
-
-        st.rerun()
 
 else:
-
-    st.sidebar.info(
-        "Weight presets are available "
-        "on the Pro tier."
-    )
+    st.sidebar.info("Weight presets are available on the Pro tier.")
 
 
 # ============================================================
 # KPI WEIGHTS
 # ============================================================
 
-st.sidebar.subheader(
-    "KPI Weights"
-)
-
-
-st.sidebar.caption(
-    """
-    0 = ignored
-
-    1 = normal importance
-
-    2 = double importance
-    """
-)
-
-
 weights = {}
 
+with st.sidebar.expander(
+    "Advanced KPI weights",
+    expanded=False
+):
+    st.caption("0 = ignored · 1 = normal · 2 = double importance")
 
-for kpi in KPI_COLS:
-
-    weights[
-        kpi
-    ] = (
-        st.sidebar.slider(
-
-            KPI_LABELS[
-                kpi
-            ],
-
+    for kpi in KPI_COLS:
+        weights[kpi] = st.slider(
+            KPI_LABELS[kpi],
             min_value=0.0,
-
             max_value=2.0,
-
             step=0.1,
-
             key=f"weight_{kpi}",
-
             disabled=not lookup_allowed
         )
-    )
 
 
 # ============================================================
@@ -979,49 +768,58 @@ X_hybrid = (
 # SEARCH SUMMARY
 # ============================================================
 
-reference = (
-    df.iloc[
-        reference_index
-    ]
-)
+reference = df.iloc[reference_index]
 
+st.markdown('<div class="section-label">Search overview</div>', unsafe_allow_html=True)
 
-st.subheader(
-    "Search Configuration"
-)
-
-
-summary_col1, summary_col2, (
-    summary_col3
-) = st.columns(
-    3
-)
-
+summary_col1, summary_col2, summary_col3, summary_col4 = st.columns([1.45, 0.8, 1.0, 1.0])
 
 with summary_col1:
-
-    st.metric(
-        "Reference Suburb",
-        (
-            f"{reference['sa2_name']} "
-            f"({reference['state']})"
-        )
+    st.markdown(
+        f"""
+        <div class="summary-card">
+            <div class="summary-label">Reference suburb</div>
+            <div class="summary-value summary-suburb">{reference['sa2_name']}</div>
+            <div class="summary-detail">{reference['state']}</div>
+        </div>
+        """,
+        unsafe_allow_html=True
     )
-
 
 with summary_col2:
-
-    st.metric(
-        "Numeric Influence",
-        f"{1 - alpha:.0%}"
+    st.markdown(
+        f"""
+        <div class="summary-card">
+            <div class="summary-label">Matches</div>
+            <div class="summary-value">{top_n}</div>
+            <div class="summary-detail">Top N results</div>
+        </div>
+        """,
+        unsafe_allow_html=True
     )
 
-
 with summary_col3:
+    st.markdown(
+        f"""
+        <div class="summary-card">
+            <div class="summary-label">Hybrid blend α</div>
+            <div class="summary-value">{alpha:.2f}</div>
+            <div class="summary-detail">{1-alpha:.0%} numeric · {alpha:.0%} text</div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
-    st.metric(
-        "Gemini Influence",
-        f"{alpha:.0%}"
+with summary_col4:
+    st.markdown(
+        f"""
+        <div class="summary-card">
+            <div class="summary-label">Account</div>
+            <div class="summary-value">{tier.title()}</div>
+            <div class="summary-detail">{remaining} lookups left</div>
+        </div>
+        """,
+        unsafe_allow_html=True
     )
 
 
@@ -1045,34 +843,32 @@ find_clicked = (
 
 
 # ============================================================
-# RUN LOOKUP
+# RUN LOOKUP DIRECTLY WITH FAISS
 # ============================================================
 
 if find_clicked:
 
-    with st.spinner(
-        "Finding similar suburbs..."
-    ):
+    try:
 
-        
-# Rebuild FAISS index because feature weights
-# and alpha can change the hybrid vectors.
-       
-        faiss_index, X_faiss = build_faiss_index(
-            X_hybrid
-        )
+        with st.spinner(
+            "Finding similar suburbs..."
+        ):
 
-        results = faiss_find_top_n(
-            df,
-            faiss_index,
-            X_faiss,
-            reference_index,
-            n=top_n
-        )
+            # Rebuild the exact FAISS index because the KPI
+            # weights and alpha can change the hybrid vectors.
+            faiss_index, X_faiss = build_faiss_index(
+                X_hybrid
+            )
 
+            results = faiss_find_top_n(
+                df,
+                faiss_index,
+                X_faiss,
+                reference_index,
+                n=top_n
+            )
 
-        explained_results = (
-            explain_results(
+            explained_results = explain_results(
                 df,
                 results,
                 X_weighted,
@@ -1080,45 +876,36 @@ if find_clicked:
                 reference_index,
                 weights
             )
+
+            st.session_state[
+                "latest_results"
+            ] = explained_results
+
+            st.session_state[
+                "latest_reference_index"
+            ] = reference_index
+
+            st.session_state[
+                "latest_alpha"
+            ] = alpha
+
+            st.session_state[
+                "latest_weights"
+            ] = weights.copy()
+
+            st.session_state[
+                "lookup_count"
+            ] += 1
+
+        st.rerun()
+
+    except Exception as exc:
+
+        st.error(
+            "The suburb lookup could not be completed."
         )
 
-
-        # ----------------------------------------------------
-        # SAVE RESULTS
-        # ----------------------------------------------------
-
-        st.session_state[
-            "latest_results"
-        ] = explained_results
-
-
-        st.session_state[
-            "latest_reference_index"
-        ] = reference_index
-
-
-        st.session_state[
-            "latest_alpha"
-        ] = alpha
-
-
-        st.session_state[
-            "latest_weights"
-        ] = weights.copy()
-
-
-        # ----------------------------------------------------
-        # INCREMENT SESSION LOOKUP
-        # ----------------------------------------------------
-
-        st.session_state[
-            "lookup_count"
-        ] += 1
-
-
-    # Rerun so sidebar counter
-    # immediately reflects new value
-    st.rerun()
+        st.exception(exc)
 
 
 # ============================================================
@@ -1140,6 +927,23 @@ if not lookup_allowed:
             "more lookups and return "
             "more suburb matches."
         )
+
+
+# ============================================================
+# EMPTY STATE
+# ============================================================
+
+if st.session_state["latest_results"] is None and lookup_allowed:
+    st.markdown(
+        """
+        <div class="empty-state">
+            <div class="empty-icon">⌕</div>
+            <div class="empty-title">Ready to find suburb lookalikes</div>
+            <div class="empty-copy">Choose a reference suburb, number of matches, blend and optional preset, then select <b>Find Lookalikes</b>.</div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
 
 # ============================================================
@@ -1184,17 +988,15 @@ if (
     )
 
 
-    st.subheader(
-        "Most Similar Suburbs"
-    )
-
-
-    st.caption(
-        (
-            "Results for "
-            f"{result_reference['sa2_name']} "
-            f"({result_reference['state']})"
-        )
+    st.markdown(
+        f"""
+        <div class="content-card">
+            <div class="section-label">Lookalike results</div>
+            <div class="results-title">Suburbs most like {result_reference['sa2_name']} ({result_reference['state']})</div>
+            <div class="results-subtitle">Hybrid ranking · {len(explained_results)} matches · α = {st.session_state.get('latest_alpha', 0.2):.2f}</div>
+        </div>
+        """,
+        unsafe_allow_html=True
     )
 
 
@@ -1268,22 +1070,24 @@ if (
 
 
     # ========================================================
-    # RADAR COMPARISON
+    # KPI PROFILE COMPARISON
     # ========================================================
 
     st.subheader(
         "KPI Profile Comparison"
     )
 
-
     st.write(
         """
-        Select one of the matched suburbs
-        to compare its 16-KPI profile
-        against the reference suburb.
+        Compare the reference suburb with up to
+        three matched suburbs across all 16 KPIs.
         """
     )
 
+
+    # ========================================================
+    # BUILD MATCH LOOKUP
+    # ========================================================
 
     match_codes = (
         explained_results[
@@ -1322,330 +1126,469 @@ if (
     )
 
 
-    selected_match_code = (
-        st.selectbox(
+    # ========================================================
+    # SELECT UP TO 3 MATCHED SUBURBS
+    # ========================================================
 
-            "Compare with",
+    default_matches = (
+        match_codes[:3]
+    )
+
+
+    selected_match_codes = (
+        st.multiselect(
+
+            "Compare with up to 3 matched suburbs",
 
             options=match_codes,
+
+            default=default_matches,
+
+            max_selections=3,
 
             format_func=lambda code:
                 match_lookup[
                     code
                 ],
 
-            key="radar_match"
+            key="radar_matches"
         )
     )
 
 
-    candidate_index = (
-        code_to_index[
-            selected_match_code
-        ]
-    )
-
-
     # ========================================================
-    # RADAR DATA
+    # REFERENCE SUBURB NAME
     # ========================================================
-
-    radar_data = (
-        get_radar_data(
-            df,
-            result_reference_index,
-            candidate_index
-        )
-    )
-
-
-    labels = [
-        item["label"]
-        for item in radar_data
-    ]
-
-
-    reference_scores = [
-        item["reference"]
-        for item in radar_data
-    ]
-
-
-    candidate_scores = [
-        item["candidate"]
-        for item in radar_data
-    ]
-
 
     reference_name = (
+
         f"{df.iloc[result_reference_index]['sa2_name']} "
         f"({df.iloc[result_reference_index]['state']})"
     )
 
 
-    candidate_name = (
-        f"{df.iloc[candidate_index]['sa2_name']} "
-        f"({df.iloc[candidate_index]['state']})"
-    )
-
-
     # ========================================================
-    # RADAR CHART
+    # CREATE RADAR CHART
     # ========================================================
 
-    fig = go.Figure()
+    if selected_match_codes:
+
+        fig = go.Figure()
 
 
-    fig.add_trace(
+        # ----------------------------------------------------
+        # USE FIRST SELECTED SUBURB TO GET KPI LABELS
+        # AND REFERENCE VALUES
+        # ----------------------------------------------------
 
-        go.Scatterpolar(
+        first_candidate_index = (
+            code_to_index[
+                selected_match_codes[0]
+            ]
+        )
 
-            r=reference_scores,
 
-            theta=labels,
-
-            fill="toself",
-
-            name=reference_name,
-
-            line=dict(
-                color=PLOT_PRIMARY,
-                width=3
-            ),
-
-            fillcolor=(
-                "rgba("
-                "154, 102, 238, 0.18"
-                ")"
+        first_radar_data = (
+            get_radar_data(
+                df,
+                result_reference_index,
+                first_candidate_index
             )
         )
-    )
 
 
-    fig.add_trace(
+        labels = [
 
-        go.Scatterpolar(
+            item["label"]
 
-            r=candidate_scores,
+            for item
+            in first_radar_data
+        ]
 
-            theta=labels,
 
-            fill="toself",
+        reference_scores = [
 
-            name=candidate_name,
+            item["reference"]
 
-            line=dict(
-                color=PLOT_CYAN,
-                width=3
-            ),
+            for item
+            in first_radar_data
+        ]
 
-            fillcolor=(
-                "rgba("
-                "141, 242, 237, 0.20"
-                ")"
+
+        # ----------------------------------------------------
+        # REFERENCE SUBURB
+        # ----------------------------------------------------
+
+        fig.add_trace(
+
+            go.Scatterpolar(
+
+                r=reference_scores,
+
+                theta=labels,
+
+                fill="toself",
+
+                name=reference_name,
+
+                line=dict(
+                    color=PLOT_PRIMARY,
+                    width=4
+                ),
+
+                fillcolor=(
+                    "rgba("
+                    "154, 102, 238, 0.16"
+                    ")"
+                )
             )
         )
-    )
 
 
-    fig.update_layout(
+        # ----------------------------------------------------
+        # COLOURS FOR THE 3 MATCHED SUBURBS
+        # ----------------------------------------------------
 
-        polar=dict(
+        comparison_colours = [
 
-            bgcolor=PLOT_WHITE,
+            "#00A6A6",
 
-            radialaxis=dict(
+            "#E67E22",
 
-                visible=True,
+            "#379634"
+        ]
 
-                range=[
-                    0,
-                    100
-                ],
 
-                gridcolor=
-                    PLOT_GREY,
+        # ----------------------------------------------------
+        # ADD EACH SELECTED MATCHED SUBURB
+        # ----------------------------------------------------
 
-                linecolor=
-                    PLOT_GREY
+        for position, match_code in enumerate(
+            selected_match_codes
+        ):
+
+            candidate_index = (
+                code_to_index[
+                    match_code
+                ]
+            )
+
+
+            radar_data = (
+                get_radar_data(
+                    df,
+                    result_reference_index,
+                    candidate_index
+                )
+            )
+
+
+            candidate_scores = [
+
+                item["candidate"]
+
+                for item
+                in radar_data
+            ]
+
+
+            candidate_name = (
+
+                f"{df.iloc[candidate_index]['sa2_name']} "
+                f"({df.iloc[candidate_index]['state']})"
+            )
+
+
+            fig.add_trace(
+
+                go.Scatterpolar(
+
+                    r=candidate_scores,
+
+                    theta=labels,
+
+                    fill=None,
+
+                    name=candidate_name,
+
+                    line=dict(
+
+                        color=
+                            comparison_colours[
+                                position
+                            ],
+
+                        width=3
+                    )
+                )
+            )
+
+
+        # ====================================================
+        # RADAR CHART LAYOUT
+        # ====================================================
+
+        fig.update_layout(
+
+            polar=dict(
+
+                bgcolor=PLOT_WHITE,
+
+                radialaxis=dict(
+
+                    visible=True,
+
+                    range=[
+                        0,
+                        100
+                    ],
+
+                    tickvals=[
+                        0,
+                        20,
+                        40,
+                        60,
+                        80,
+                        100
+                    ],
+
+                    ticksuffix="%",
+
+                    gridcolor=
+                        PLOT_GREY,
+
+                    linecolor=
+                        PLOT_GREY
+                ),
+
+                angularaxis=dict(
+
+                    gridcolor=
+                        PLOT_GREY
+                )
             ),
 
-            angularaxis=dict(
+            paper_bgcolor=
+                PLOT_WHITE,
 
-                gridcolor=
-                    PLOT_GREY
+            font=dict(
+                color=PLOT_JET
+            ),
+
+            legend=dict(
+
+                orientation="h",
+
+                yanchor="bottom",
+
+                y=1.08,
+
+                xanchor="center",
+
+                x=0.5
+            ),
+
+            showlegend=True,
+
+            height=720,
+
+            margin=dict(
+                l=90,
+                r=90,
+                t=130,
+                b=70
+            ),
+
+            title=(
+                f"{reference_name} vs "
+                f"{len(selected_match_codes)} "
+                f"matched suburb"
+                f"{'s' if len(selected_match_codes) > 1 else ''}"
             )
-        ),
-
-        paper_bgcolor=
-            PLOT_WHITE,
-
-        font=dict(
-            color=PLOT_JET
-        ),
-
-        legend=dict(
-            orientation="h"
-        ),
-
-        showlegend=True,
-
-        height=700,
-
-        margin=dict(
-            l=90,
-            r=90,
-            t=100,
-            b=70
-        ),
-
-        title=(
-            f"{reference_name} vs "
-            f"{candidate_name}"
         )
-    )
 
 
-    st.plotly_chart(
-        fig,
-        use_container_width=True
-    )
-
-
-    st.caption(
-        """
-        Radar values represent percentile
-        ranks across all suburbs.
-
-        100 = among the highest values.
-
-        50 = around the middle.
-
-        0 = among the lowest values.
-        """
-    )
-
-
-    # ========================================================
-    # KPI COMPARISON TABLE
-    # ========================================================
-
-    st.subheader(
-        "KPI Comparison Details"
-    )
-
-
-    comparison_table = (
-        get_kpi_comparison_table(
-            df,
-            result_reference_index,
-            candidate_index
+        st.plotly_chart(
+            fig,
+            use_container_width=True
         )
-    )
 
 
-    numeric_columns = [
+        st.caption(
+            """
+            Radar values represent percentile ranks
+            across all suburbs.
 
-        "Reference Percentile",
+            100 = among the highest values.
 
-        "Matched Percentile",
+            50 = around the middle.
 
-        "Difference"
-    ]
+            0 = among the lowest values.
+            """
+        )
 
 
-    if (
-        "Absolute Difference"
-        in comparison_table.columns
-    ):
+        # ====================================================
+        # KPI COMPARISON DETAILS
+        # ====================================================
 
-        numeric_columns.append(
+        st.subheader(
+            "KPI Comparison Details"
+        )
+
+
+        st.write(
+            """
+            Select one suburb below for a detailed
+            KPI-by-KPI comparison with the reference suburb.
+            """
+        )
+
+
+        detail_match_code = (
+            st.selectbox(
+
+                "Detailed comparison with",
+
+                options=
+                    selected_match_codes,
+
+                format_func=lambda code:
+                    match_lookup[
+                        code
+                    ],
+
+                key="detail_match"
+            )
+        )
+
+
+        detail_candidate_index = (
+            code_to_index[
+                detail_match_code
+            ]
+        )
+
+
+        comparison_table = (
+            get_kpi_comparison_table(
+                df,
+                result_reference_index,
+                detail_candidate_index
+            )
+        )
+
+
+        numeric_columns = [
+
+            "Reference Percentile",
+
+            "Matched Percentile",
+
+            "Difference"
+        ]
+
+
+        if (
             "Absolute Difference"
-        )
+            in comparison_table.columns
+        ):
+
+            numeric_columns.append(
+                "Absolute Difference"
+            )
 
 
-    for column in numeric_columns:
+        for column in numeric_columns:
 
-        comparison_table[
-            column
-        ] = (
             comparison_table[
                 column
-            ].round(1)
+            ] = (
+
+                comparison_table[
+                    column
+                ].round(1)
+            )
+
+
+        st.dataframe(
+            comparison_table,
+            use_container_width=True,
+            hide_index=True
         )
 
 
-    st.dataframe(
-        comparison_table,
-        use_container_width=True,
-        hide_index=True
-    )
+        st.caption(
+            """
+            Difference = matched suburb percentile
+            minus reference suburb percentile.
 
+            Positive values mean the matched suburb
+            ranks higher on that KPI.
 
-    st.caption(
-        """
-        Difference = matched suburb
-        percentile minus reference
-        suburb percentile.
+            Negative values mean the reference suburb
+            ranks higher.
+            """
+        )
 
-        Positive values mean the matched
-        suburb ranks higher on that KPI.
+    else:
 
-        Negative values mean the reference
-        suburb ranks higher.
-        """
-    )
-
+        st.info(
+            "Select at least one matched suburb "
+            "to display the KPI comparison."
+        )
+ 
 
 # ============================================================
 # DEVELOPMENT INFORMATION
 # ============================================================
 
-with st.expander(
-    "Development Information"
-):
+if os.getenv("SHOW_DEVELOPMENT_INFO", "false").lower() == "true":
+    with st.expander(
+        "Development Information"
+    ):
 
-    st.write(
-        "Numeric matrix:",
-        X_numeric.shape
-    )
-
-
-    st.write(
-        "Text matrix:",
-        X_text.shape
-    )
+        st.write(
+            "Numeric matrix:",
+            X_numeric.shape
+        )
 
 
-    st.write(
-        "Current hybrid matrix:",
-        X_hybrid.shape
-    )
+        st.write(
+            "Text matrix:",
+            X_text.shape
+        )
 
 
-    st.write(
-        "Number of KPIs:",
-        len(KPI_COLS)
-    )
+        st.write(
+            "Current hybrid matrix:",
+            X_hybrid.shape
+        )
 
 
-    st.write(
-        "User tier:",
-        tier
-    )
+        st.write(
+            "Number of KPIs:",
+            len(KPI_COLS)
+        )
 
 
-    st.write(
-        "Lookup count:",
-        st.session_state[
-            "lookup_count"
-        ]
-    )
+        st.write(
+            "User tier:",
+            tier
+        )
 
 
-    st.write(
-        "Maximum matches:",
-        tier_config[
-            "max_matches"
-        ]
-    )
+        st.write(
+            "Lookup count:",
+            st.session_state[
+                "lookup_count"
+            ]
+        )
+
+
+        st.write(
+            "Maximum matches:",
+            tier_config[
+                "max_matches"
+            ]
+        )
