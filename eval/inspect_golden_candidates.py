@@ -23,11 +23,11 @@ from engine.weights import (
 # ============================================================
 
 REFERENCE_SUBURBS = [
-#    "Carlton",
-#    "Toorak",
-#    "Logan Central",
-#    "Castle Hill - North",
-#    "Petermann - Simpson"
+    "Carlton",
+    "Toorak",
+    "Logan Central",
+    "Castle Hill - North",
+    "Petermann - Simpson"
     "Taylor",
     "Wheelers Hill",
     "St Albans - North",

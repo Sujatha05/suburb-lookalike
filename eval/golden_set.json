@@ -1,0 +1,156 @@
+{
+    "206041117": {
+        "sa2_name": "Carlton",
+        "state": "Victoria",
+        "profile": "Inner-city, diverse, high-rental, low-young-family areas",
+        "expected_neighbours": [
+            "206051513",
+            "206041506",
+            "206041503",
+            "206041505",
+            "206071141"
+        ],
+        "should_not_match": [],
+        "k": 10,
+        "validation": {
+            "minimum_expected_in_top_k": 3
+        }
+    },
+    "206061138": {
+        "sa2_name": "Toorak",
+        "state": "Victoria",
+        "profile": "High-prosperity, high-equity, established areas",
+        "expected_neighbours": [
+            "503011031",
+            "206051128",
+            "206061135",
+            "118011650",
+            "118011347"
+        ],
+        "should_not_match": [],
+        "k": 10
+    },
+    "311061331": {
+        "sa2_name": "Logan Central",
+        "state": "Queensland",
+        "profile": "High social-housing, lower-prosperity areas",
+        "expected_neighbours": [
+            "311061336",
+            "311061330",
+            "402021030",
+            "310011274",
+            "116031313"
+        ],
+        "should_not_match": [],
+        "k": 10,
+        "validation": {
+            "minimum_precision": 0.5
+        }
+    },
+    "115011555": {
+        "sa2_name": "Castle Hill - North",
+        "state": "New South Wales",
+        "profile": "High young-family, high-learning, high-equity areas",
+        "expected_neighbours": [
+            "115011291",
+            "115011557",
+            "115011558",
+            "115011621",
+            "115011296"
+        ],
+        "should_not_match": [],
+        "k": 10
+    },
+    "702011050": {
+        "sa2_name": "Petermann - Simpson",
+        "state": "Northern Territory",
+        "profile": "Remote, low-density, distinct-profile areas",
+        "expected_neighbours": [
+            "511031283",
+            "510021267",
+            "702011052",
+            "315021404",
+            "511041290"
+        ],
+        "should_not_match": [
+            "206041503",
+            "206041505",
+            "305011106",
+            "305011105"
+        ],
+        "k": 10,
+        "validation": {
+            "should_not_match_inner_city": true
+        }
+    },
+    "801041121": {
+        "sa2_name": "Taylor",
+        "state": "Australian Capital Territory",
+        "profile": "High investment-potential, premium-rental, young-growth area",
+        "expected_neighbours": [
+            "801041122",
+            "801041120",
+            "801101136",
+            "212031555",
+            "801011143"
+        ],
+        "should_not_match": [],
+        "k": 10
+    },
+    "212051327": {
+        "sa2_name": "Wheelers Hill",
+        "state": "Victoria",
+        "profile": "Established, high-equity, high-resident-anchor, retiree and downsizer area",
+        "expected_neighbours": [
+            "211041273",
+            "207021160",
+            "207021156",
+            "212051321",
+            "207021159"
+        ],
+        "should_not_match": [],
+        "k": 10
+    },
+    "213011334": {
+        "sa2_name": "St Albans - North",
+        "state": "Victoria",
+        "profile": "Highly diverse, strong migration-footprint, high-rental-access area",
+        "expected_neighbours": [
+            "213011335",
+            "209041529",
+            "212041460",
+            "212041317",
+            "213011337"
+        ],
+        "should_not_match": [],
+        "k": 10
+    },
+    "128021608": {
+        "sa2_name": "Loftus - Yarrawarrah",
+        "state": "New South Wales",
+        "profile": "Stable owner-occupier, high-equity, strong resident-anchor area",
+        "expected_neighbours": [
+            "128021607",
+            "107041147",
+            "121021404",
+            "128021533",
+            "111011213"
+        ],
+        "should_not_match": [],
+        "k": 10
+    },
+    "310041302": {
+        "sa2_name": "Redbank Plains",
+        "state": "Queensland",
+        "profile": "High-rental-access, high-household-mobility, young-family growth area",
+        "expected_neighbours": [
+            "311031312",
+            "311031317",
+            "310041299",
+            "311031314",
+            "311031311"
+        ],
+        "should_not_match": [],
+        "k": 10
+    }
+}
