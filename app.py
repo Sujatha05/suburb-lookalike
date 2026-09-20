@@ -572,7 +572,7 @@ with st.sidebar:
     )
 
     badge = '<span class="sidebar-plan-badge">PRO</span>' if tier == "pro" else ""
-    st.markdown(
+    st.html(
         f"""
 <div class="sidebar-account-card">
     <div class="sidebar-account-top">
@@ -587,8 +587,7 @@ with st.sidebar:
         <strong>{remaining} / {tier_config['lookup_limit']} left</strong>
     </div>
 </div>
-""",
-        unsafe_allow_html=True
+"""
     )
 
     if warning_at is not None and lookup_count >= warning_at and lookup_allowed:
