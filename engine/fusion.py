@@ -14,7 +14,6 @@ def l2_normalise(matrix):
     return matrix / norms
 
 
-
 def fuse_vectors(
     numeric_matrix,
     text_matrix,

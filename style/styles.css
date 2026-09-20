@@ -351,3 +351,749 @@ section[data-testid="stSidebar"] [data-testid="stSlider"] {
 
     letter-spacing: -0.5px;
 }
+
+/* ============================================================
+   LOGIN PAGE
+   ============================================================ */
+
+/* Main application background */
+
+.stApp {
+    background:
+        radial-gradient(
+            circle at 15% 15%,
+            rgba(141, 242, 237, 0.18),
+            transparent 30%
+        ),
+        radial-gradient(
+            circle at 85% 15%,
+            rgba(154, 102, 238, 0.14),
+            transparent 32%
+        ),
+        #f8f9fc;
+}
+
+
+/* Hide sidebar on login screen automatically when empty */
+
+[data-testid="stSidebar"] {
+    border-right: 1px solid #eeeeF4;
+}
+
+
+/* ============================================================
+   HERO
+   ============================================================ */
+
+.login-hero {
+    text-align: center;
+    max-width: 760px;
+    margin: 35px auto 25px auto;
+}
+
+
+.login-eyebrow {
+    display: inline-block;
+
+    color: #5e17eb;
+
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 2.5px;
+
+    margin-bottom: 14px;
+}
+
+
+.login-main-title {
+    color: #272d2d;
+
+    font-size: 38px;
+    line-height: 1.15;
+
+    font-weight: 800;
+
+    margin-bottom: 12px;
+}
+
+
+.login-main-subtitle {
+    color: #687078;
+
+    font-size: 16px;
+    line-height: 1.6;
+
+    max-width: 620px;
+
+    margin: 0 auto;
+}
+
+
+/* ============================================================
+   TECHNOLOGY PILLS
+   ============================================================ */
+
+.login-tech-row {
+    margin-top: 18px;
+
+    color: #818585;
+
+    font-size: 12px;
+    font-weight: 600;
+}
+
+
+.login-tech-row span {
+    margin: 0 4px;
+}
+
+
+.login-dot {
+    color: #9a66ee;
+}
+
+
+/* ============================================================
+   LOGIN FORM - CLEAN VERSION
+   ============================================================ */
+
+.login-card-header {
+    margin-top: 10px;
+    margin-bottom: 12px;
+}
+
+.login-welcome {
+    color: #272d2d;
+    font-size: 24px;
+    font-weight: 750;
+    margin-bottom: 5px;
+}
+
+.login-description {
+    color: #818585;
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+
+/* ------------------------------------------------------------
+   TEXT INPUT
+   ------------------------------------------------------------ */
+
+div[data-testid="stTextInput"] {
+    margin-bottom: 8px;
+}
+
+div[data-testid="stTextInput"] label {
+    color: #4c5053;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+div[data-testid="stTextInput"] input {
+    min-height: 46px;
+
+    border-radius: 10px;
+    border: 1px solid #dbdddc;
+
+    background: #fafafd;
+
+    padding-left: 14px;
+
+    transition:
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+div[data-testid="stTextInput"] input:focus {
+    border-color: #9a66ee;
+
+    box-shadow:
+        0 0 0 2px
+        rgba(154, 102, 238, 0.12);
+}
+
+
+/* ------------------------------------------------------------
+   SIGN IN BUTTON
+   ------------------------------------------------------------ */
+
+div[data-testid="stButton"] {
+    margin-top: 4px;
+    margin-bottom: 14px;
+}
+
+div[data-testid="stButton"] button[kind="primary"] {
+    min-height: 46px;
+
+    border: none;
+    border-radius: 10px;
+
+    font-weight: 700;
+
+    background:
+        linear-gradient(
+            90deg,
+            #5e17eb 0%,
+            #9a66ee 100%
+        );
+
+    box-shadow:
+        0 7px 18px
+        rgba(94, 23, 235, 0.18);
+
+    transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+div[data-testid="stButton"]
+button[kind="primary"]:hover {
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 10px 24px
+        rgba(94, 23, 235, 0.25);
+}
+
+
+/* ------------------------------------------------------------
+   SECURITY MESSAGE
+   ------------------------------------------------------------ */
+
+.login-security {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 12px;
+
+    padding: 15px 17px;
+
+    margin-top: 4px;
+
+    color: #595f63;
+
+    font-size: 12px;
+    line-height: 1.5;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(216, 242, 208, 0.50),
+            rgba(202, 228, 251, 0.55)
+        );
+
+    border:
+        1px solid
+        rgba(154, 102, 238, 0.18);
+
+    border-radius: 12px;
+}
+
+.login-security strong {
+    color: #272d2d;
+}
+
+.login-security-icon {
+    font-size: 16px;
+}
+
+
+/* ------------------------------------------------------------
+   LOGIN FOOTER
+   ------------------------------------------------------------ */
+
+.login-footer {
+    text-align: center;
+
+    color: #9a9d9d;
+
+    font-size: 11px;
+
+    margin-top: 28px;
+
+    letter-spacing: 0.2px;
+}
+
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+
+@media (max-width: 768px) {
+
+    .login-main-title {
+        font-size: 29px;
+    }
+
+    .login-main-subtitle {
+        font-size: 14px;
+    }
+
+    .login-tech-row {
+        line-height: 2;
+    }
+}
+
+/* ============================================================
+   DEMOGRAFY LOGIN CARD
+   Append this block to style/styles.css
+   ============================================================ */
+
+.login-page-heading {
+    text-align: center;
+    max-width: 760px;
+    margin: 18px auto 24px auto;
+}
+
+.login-page-kicker {
+    color: #5e17eb;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 2.2px;
+    margin-bottom: 8px;
+}
+
+.login-page-title {
+    color: #272d2d;
+    font-size: 34px;
+    line-height: 1.15;
+    font-weight: 800;
+    margin-bottom: 8px;
+}
+
+.login-page-subtitle {
+    color: #818585;
+    font-size: 14px;
+    line-height: 1.55;
+}
+
+/* st.container(key="login_card") gets this Streamlit key class. */
+.st-key-login_card {
+    background: rgba(255, 255, 255, 0.98);
+    border: 1px solid rgba(154, 102, 238, 0.24) !important;
+    border-radius: 22px !important;
+    padding: 18px 22px 20px 22px !important;
+    box-shadow:
+        0 22px 55px rgba(39, 45, 45, 0.08),
+        0 6px 18px rgba(94, 23, 235, 0.07);
+}
+
+.login-card-heading {
+    margin-bottom: 18px;
+}
+
+.login-icon {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    margin-bottom: 14px;
+    color: #5e17eb;
+    background: linear-gradient(135deg, rgba(94, 23, 235, 0.10), rgba(154, 102, 238, 0.16));
+    font-size: 22px;
+    font-weight: 800;
+}
+
+.login-welcome {
+    color: #272d2d;
+    font-size: 25px;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 6px;
+}
+
+.login-description {
+    color: #818585;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+/* Scope widget styling to this login card only. */
+.st-key-login_card div[data-testid="stTextInput"] label {
+    color: #272d2d;
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.st-key-login_card div[data-testid="stTextInput"] input {
+    min-height: 48px;
+    border: 1px solid #dbdddc;
+    border-radius: 11px;
+    background: #fbfbfd;
+    padding-left: 14px;
+}
+
+.st-key-login_card div[data-testid="stTextInput"] input:focus {
+    border-color: #9a66ee;
+    box-shadow: 0 0 0 2px rgba(154, 102, 238, 0.12);
+}
+
+.st-key-login_card div[data-testid="stButton"] {
+    margin-top: 6px;
+    margin-bottom: 16px;
+}
+
+.st-key-login_card div[data-testid="stButton"] button[kind="primary"] {
+    min-height: 48px;
+    border: 0;
+    border-radius: 11px;
+    color: #ffffff;
+    font-weight: 700;
+    background: linear-gradient(90deg, #5e17eb 0%, #9a66ee 100%);
+    box-shadow: 0 8px 20px rgba(94, 23, 235, 0.18);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.st-key-login_card div[data-testid="stButton"] button[kind="primary"]:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 11px 26px rgba(94, 23, 235, 0.24);
+}
+
+.login-security {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    padding: 14px 16px;
+    margin-top: 2px;
+    border: 1px solid rgba(154, 102, 238, 0.16);
+    border-radius: 13px;
+    background: linear-gradient(120deg, rgba(216, 242, 208, 0.58), rgba(202, 228, 251, 0.62));
+    color: #595f63;
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.login-security strong {
+    color: #272d2d;
+    font-size: 12px;
+}
+
+.login-security-icon {
+    width: 34px;
+    height: 34px;
+    flex: 0 0 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: rgba(55, 150, 52, 0.09);
+    color: #4f6265;
+    font-size: 15px;
+}
+
+.login-security-copy {
+    margin-top: 2px;
+}
+
+.login-footer {
+    text-align: center;
+    color: #9a9d9d;
+    font-size: 11px;
+    margin-top: 22px;
+    letter-spacing: 0.15px;
+}
+
+@media (max-width: 768px) {
+    .login-page-title { font-size: 28px; }
+    .st-key-login_card { padding: 15px 16px 17px 16px !important; }
+}
+
+
+/* ============================================================
+   FINAL LOGIN CARD OVERRIDES
+   Scoped to st.container(key="login_card") only.
+   ============================================================ */
+
+.st-key-login_card {
+    background: rgba(255, 255, 255, 0.98) !important;
+    border: 1px solid rgba(154, 102, 238, 0.30) !important;
+    border-radius: 18px !important;
+    padding: 24px 26px 22px 26px !important;
+    box-shadow: 0 18px 48px rgba(39, 45, 45, 0.09),
+                0 5px 16px rgba(94, 23, 235, 0.08) !important;
+}
+
+.st-key-login_card .login-card-heading {
+    margin-bottom: 16px;
+}
+
+.st-key-login_card div[data-testid="stTextInput"],
+.st-key-login_card div[data-testid="stButton"] {
+    background: transparent !important;
+    border: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+.st-key-login_card div[data-testid="stTextInput"] {
+    margin-bottom: 8px !important;
+}
+
+.st-key-login_card div[data-testid="stButton"] {
+    margin-top: 4px !important;
+    margin-bottom: 14px !important;
+}
+
+.st-key-login_card .login-security {
+    margin-top: 2px;
+    margin-bottom: 0;
+}
+
+/* ============================================================
+   FINAL SIDEBAR REDESIGN
+   Visual-only overrides. Scoped to the sidebar so application
+   behaviour and main-content styling remain unchanged.
+   ============================================================ */
+
+section[data-testid="stSidebar"] {
+    background: rgba(255, 255, 255, 0.97) !important;
+    border-right: 1px solid #e7eaf1 !important;
+}
+
+section[data-testid="stSidebar"] > div {
+    padding-top: .65rem !important;
+}
+
+section[data-testid="stSidebar"] [data-testid="stVerticalBlock"] {
+    gap: .48rem;
+}
+
+.sidebar-section-title {
+    color: var(--brand-primary);
+    font-size: .69rem;
+    line-height: 1;
+    font-weight: 850;
+    letter-spacing: .20em;
+    margin: 7px 0 8px;
+}
+
+.sidebar-separator {
+    height: 1px;
+    margin: 13px 0 12px;
+    background: linear-gradient(90deg, #e3e6ed 0%, #e3e6ed 78%, transparent 100%);
+}
+
+/* Account */
+.sidebar-account-card {
+    padding: 13px 13px 11px;
+    border: 1px solid #d7e1fb;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #f4f7ff 0%, #edf4ff 100%);
+    box-shadow: 0 2px 8px rgba(23, 35, 60, .035);
+}
+
+.sidebar-account-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.sidebar-user-id {
+    color: var(--brand-jet);
+    font-size: .93rem;
+    line-height: 1.15;
+    font-weight: 800;
+}
+
+.sidebar-plan-name {
+    margin-top: 3px;
+    color: #6f7b91;
+    font-size: .70rem;
+}
+
+.sidebar-plan-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 8px;
+    border: 1px solid #c8b4ff;
+    border-radius: 999px;
+    background: #f1ebff;
+    color: #6b2bea;
+    font-size: .64rem;
+    font-weight: 850;
+    letter-spacing: .04em;
+}
+
+.sidebar-lookup-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-top: 11px;
+    padding-top: 9px;
+    border-top: 1px solid rgba(119, 145, 190, .16);
+    color: #71809a;
+    font-size: .69rem;
+}
+
+.sidebar-lookup-row strong {
+    color: #48617f;
+    font-weight: 750;
+}
+
+/* Logout */
+section[data-testid="stSidebar"] .st-key-sidebar_logout button,
+section[data-testid="stSidebar"] button[aria-label="Log out"] {
+    min-height: 35px !important;
+    border-radius: 10px !important;
+    background: #fff !important;
+    border-color: #d8dde7 !important;
+    color: #354052 !important;
+    font-size: .76rem !important;
+}
+
+/* Lookup card */
+.st-key-sidebar_lookup_card {
+    padding: 12px 12px 9px !important;
+    border: 1px solid #e5e8ef !important;
+    border-radius: 14px !important;
+    background: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(23, 35, 60, .025);
+}
+
+.st-key-sidebar_lookup_card label,
+.st-key-sidebar_blend_card label {
+    color: #39465a !important;
+    font-size: .75rem !important;
+    font-weight: 650 !important;
+}
+
+.st-key-sidebar_lookup_card div[data-baseweb="select"] > div {
+    min-height: 42px;
+    border-radius: 10px !important;
+    background: #fafbfe !important;
+}
+
+/* Slider compactness */
+.st-key-sidebar_lookup_card [data-testid="stSlider"],
+.st-key-sidebar_blend_card [data-testid="stSlider"] {
+    padding-top: 1px !important;
+    padding-bottom: 0 !important;
+}
+
+/* Hybrid card */
+.st-key-sidebar_blend_card {
+    margin-top: 4px;
+    padding: 13px 12px 12px !important;
+    border: 1px solid #e5defb !important;
+    border-radius: 14px !important;
+    background: linear-gradient(145deg, #ffffff 0%, #faf8ff 100%) !important;
+    box-shadow: 0 2px 9px rgba(94, 23, 235, .035);
+}
+
+.sidebar-card-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 7px;
+}
+
+.sidebar-card-title {
+    color: var(--brand-jet);
+    font-size: .90rem;
+    line-height: 1.2;
+    font-weight: 800;
+}
+
+.sidebar-card-copy {
+    margin-top: 3px;
+    color: #8790a2;
+    font-size: .66rem;
+}
+
+.sidebar-ai-pill {
+    padding: 3px 7px;
+    border-radius: 999px;
+    background: #eee7ff;
+    color: #6a2ae8;
+    font-size: .61rem;
+    font-weight: 850;
+}
+
+.blend-summary {
+    display: grid;
+    grid-template-columns: 1fr 1px 1fr;
+    align-items: stretch;
+    margin-top: 5px;
+    overflow: hidden;
+    border: 1px solid #e6e2f1;
+    border-radius: 11px;
+    background: #fff;
+}
+
+.blend-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 9px 10px;
+}
+
+.blend-stat span {
+    color: #8a92a1;
+    font-size: .63rem;
+}
+
+.blend-stat strong {
+    color: var(--brand-jet);
+    font-size: .88rem;
+    font-weight: 800;
+}
+
+.blend-divider {
+    background: #ece8f4;
+}
+
+/* Presets */
+.sidebar-presets-title {
+    margin-top: 11px;
+}
+
+section[data-testid="stSidebar"] div[data-testid="stHorizontalBlock"] {
+    gap: .40rem !important;
+}
+
+section[data-testid="stSidebar"] div[data-testid="stHorizontalBlock"] div.stButton > button {
+    min-height: 35px !important;
+    height: 35px !important;
+    padding: .25rem .35rem !important;
+    border-radius: 9px !important;
+    font-size: .70rem !important;
+    white-space: nowrap !important;
+}
+
+.active-preset {
+    margin: 2px 0 5px;
+    padding: 8px 10px;
+    border-radius: 9px;
+    background: #f6f3ff;
+    color: #6d6680;
+    font-size: .68rem;
+}
+
+.active-preset span {
+    color: #6d2bea;
+    font-weight: 900;
+    margin-right: 4px;
+}
+
+/* Advanced weights */
+section[data-testid="stSidebar"] div[data-testid="stExpander"] {
+    margin-top: 3px;
+    border: 1px solid #dfe3eb !important;
+    border-radius: 11px !important;
+    background: #fff !important;
+    overflow: hidden;
+}
+
+section[data-testid="stSidebar"] div[data-testid="stExpander"] summary {
+    min-height: 40px;
+    color: #39465a;
+    font-size: .74rem;
+    font-weight: 650;
+}

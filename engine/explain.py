@@ -199,7 +199,7 @@ def get_rank_delta(
         "hybrid_rank": hybrid_rank,
         "rank_delta": rank_delta
     }
-    
+
 def explain_results(
     df,
     results,

@@ -1,7 +1,9 @@
+import time
 import os
 from pathlib import Path
 import streamlit as st
 import plotly.graph_objects as go
+from observability.tracing import trace_lookup
 
 
 # ============================================================
@@ -205,7 +207,7 @@ def show_header():
     logo_path = (
         Path(__file__).parent
         / "asset"
-        / "demografy_logo.png"
+        / "demografy_logo.svg"
     )
 
     header = st.container()
@@ -251,86 +253,161 @@ def show_header():
 # LOGIN SCREEN
 # ============================================================
 
-if not st.session_state[
-    "logged_in"
-]:
+if not st.session_state["logged_in"]:
 
-    logo_path = (
-        Path(__file__).parent
-        / "asset"
-        / "demografy_logo.png"
+    # ========================================================
+    # LOGIN HERO
+    # ========================================================
+
+    st.html(
+        """
+<div class="login-hero">
+    <div class="login-eyebrow">DEMOGRAFY</div>
+    <div class="login-main-title">Suburb Lookalike Finder</div>
+    <div class="login-main-subtitle">
+        Discover Australian suburbs with similar demographic profiles using data and AI.
+    </div>
+    <div class="login-tech-row">
+        <span>16 Demographic KPIs</span>
+        <span class="login-dot">•</span>
+        <span>Gemini AI</span>
+        <span class="login-dot">•</span>
+        <span>FAISS Similarity</span>
+    </div>
+</div>
+        """
     )
 
-    logo_html = ""
+    # ========================================================
+    # LOGIN CARD
+    # ========================================================
 
-    login_logo_left, login_logo_mid, login_logo_right = st.columns([1, 1.1, 1])
-    with login_logo_mid:
-        try:
-            if logo_path.exists() and logo_path.is_file():
-                st.image(str(logo_path), width=220)
-            else:
-                raise FileNotFoundError("Logo file not found")
-        except Exception:
-            st.markdown(
-                '<div class="login-wordmark">Demografy</div>',
-                unsafe_allow_html=True
-            )
-
-    st.markdown(
-        f"""
-        <div class="login-shell">
-            <div class="login-brand">
-                <div class="login-title">Suburb Lookalike Finder</div>
-                <div class="login-subtitle">Sign in to discover Australian suburbs with similar demographic profiles.</div>
-            </div>
-            <div class="login-note">Access is controlled by your Demografy user ID and subscription tier.</div>
-        </div>
-        """,
-        unsafe_allow_html=True
+    login_left, login_mid, login_right = st.columns(
+        [1.25, 1.5, 1.25]
     )
-
-    login_left, login_mid, login_right = st.columns([1.2, 1, 1.2])
 
     with login_mid:
-        user_id = st.text_input(
-            "User ID",
-            placeholder="e.g. user_001"
+
+        # A real Streamlit container keeps the native widgets inside
+        # one continuous visual card. The key gives CSS a safe scope.
+        with st.container(key="login_card", border=True):
+
+            st.html(
+                """
+<div class="login-card-heading">
+    <div class="login-icon">⌂</div>
+    <div class="login-welcome">Welcome back</div>
+    <div class="login-description">
+        Sign in to continue to your Demografy workspace.
+    </div>
+</div>
+                """
+            )
+
+            user_id = st.text_input(
+                "User ID",
+                placeholder="e.g. user_001"
+            )
+
+            login_clicked = st.button(
+                "Sign in",
+                type="primary",
+                use_container_width=True
+            )
+
+            st.html(
+                """
+<div class="login-security">
+    <div class="login-security-icon">🔒</div>
+    <div class="login-security-copy">
+        <strong>Secure access</strong><br>
+        Access is controlled by your Demografy user ID and subscription tier.
+    </div>
+</div>
+                """
+            )
+
+            # ====================================================
+            # EXISTING LOGIN LOGIC - UNCHANGED
+            # ====================================================
+
+            if login_clicked:
+
+                entered_user_id = user_id.strip()
+
+                if not entered_user_id:
+
+                    st.warning(
+                        "Please enter your user ID."
+                    )
+
+                else:
+
+                    try:
+
+                        client = get_bigquery_client()
+
+                        user = get_user(
+                            client,
+                            entered_user_id
+                        )
+
+                        if user is None:
+
+                            st.error(
+                                "Invalid user ID or inactive account."
+                            )
+
+                        else:
+
+                            try:
+
+                                get_tier_config(
+                                    user["tier"]
+                                )
+
+                            except ValueError:
+
+                                st.error(
+                                    "This account has an unsupported tier."
+                                )
+
+                                st.stop()
+
+                            st.session_state[
+                                "logged_in"
+                            ] = True
+
+                            st.session_state[
+                                "user"
+                            ] = user
+
+                            st.session_state[
+                                "lookup_count"
+                            ] = 0
+
+                            st.session_state[
+                                "latest_results"
+                            ] = None
+
+                            st.rerun()
+
+                    except Exception as exc:
+
+                        st.error(
+                            "Unable to complete login."
+                        )
+
+                        st.exception(exc)
+
+        st.markdown(
+            """
+<div class="login-footer">
+    Demografy · Data-driven suburb intelligence
+</div>
+            """,
+            unsafe_allow_html=True
         )
-
-        login_clicked = st.button(
-            "Sign in",
-            type="primary",
-            use_container_width=True
-        )
-
-        if login_clicked:
-            entered_user_id = user_id.strip()
-
-            if not entered_user_id:
-                st.warning("Please enter your user ID.")
-            else:
-                try:
-                    client = get_bigquery_client()
-                    user = get_user(client, entered_user_id)
-
-                    if user is None:
-                        st.error("Invalid user ID or inactive account.")
-                    else:
-                        try:
-                            get_tier_config(user["tier"])
-                        except ValueError:
-                            st.error("This account has an unsupported tier.")
-                            st.stop()
-
-                        st.session_state["logged_in"] = True
-                        st.session_state["user"] = user
-                        st.session_state["lookup_count"] = 0
-                        st.session_state["latest_results"] = None
-                        st.rerun()
-
-                except Exception as exc:
-                    st.error("Unable to complete login.")
-                    st.exception(exc)
 
     st.stop()
 
@@ -486,16 +563,31 @@ lookup_allowed = can_lookup(tier, lookup_count)
 warning_at = tier_config["warning_at"]
 
 with st.sidebar:
-    st.markdown('<div class="sidebar-label">Account</div>', unsafe_allow_html=True)
+    # --------------------------------------------------------
+    # ACCOUNT
+    # --------------------------------------------------------
+    st.markdown(
+        '<div class="sidebar-section-title">ACCOUNT</div>',
+        unsafe_allow_html=True
+    )
 
-    badge = ' <span class="demografy-badge">PRO</span>' if tier == "pro" else ""
+    badge = '<span class="sidebar-plan-badge">PRO</span>' if tier == "pro" else ""
     st.markdown(
         f"""
-        <div class="account-card">
-            <div class="account-line">{user['user_id']} · {tier.title()} {badge}</div>
-            <div class="account-small">{remaining} / {tier_config['lookup_limit']} lookups left</div>
+<div class="sidebar-account-card">
+    <div class="sidebar-account-top">
+        <div>
+            <div class="sidebar-user-id">{user['user_id']}</div>
+            <div class="sidebar-plan-name">{tier.title()} account</div>
         </div>
-        """,
+        {badge}
+    </div>
+    <div class="sidebar-lookup-row">
+        <span>Session lookups</span>
+        <strong>{remaining} / {tier_config['lookup_limit']} left</strong>
+    </div>
+</div>
+""",
         unsafe_allow_html=True
     )
 
@@ -507,168 +599,135 @@ with st.sidebar:
         if tier == "free":
             st.info("Upgrade your plan for additional lookups and more matches.")
 
-    if st.button("Logout", use_container_width=True):
+    if st.button("Log out", use_container_width=True, key="sidebar_logout"):
         st.session_state.clear()
         st.rerun()
 
-    st.divider()
-    st.markdown('<div class="sidebar-label">Lookup</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sidebar-separator"></div>', unsafe_allow_html=True)
+
+    # --------------------------------------------------------
+    # LOOKUP
+    # --------------------------------------------------------
+    st.markdown(
+        '<div class="sidebar-section-title">LOOKUP</div>',
+        unsafe_allow_html=True
+    )
 
 
 # ============================================================
 # SA2 LOOKUP
 # ============================================================
 
-sa2_codes = (
-    df["sa2_code"]
-    .astype(str)
-    .tolist()
-)
+sa2_codes = df["sa2_code"].astype(str).tolist()
 
+# Keep the underlying SA2 code as the unique identifier.  Only the
+# sidebar label is shortened to make long state names fit more neatly.
+state_abbreviations = {
+    "New South Wales": "NSW",
+    "Victoria": "VIC",
+    "Queensland": "QLD",
+    "South Australia": "SA",
+    "Western Australia": "WA",
+    "Tasmania": "TAS",
+    "Northern Territory": "NT",
+    "Australian Capital Territory": "ACT",
+}
 
-display_lookup = dict(
-
-    zip(
-
-        df["sa2_code"]
-        .astype(str),
-
-        (
-            df["sa2_name"]
-            .astype(str)
-
-            + " ("
-
-            + df["state"]
-            .astype(str)
-
-            + ")"
-        )
-    )
-)
-
-
-code_to_index = {
-
-    str(code): index
-
-    for index, code
-    in enumerate(
-        df["sa2_code"]
+display_lookup = {
+    str(code): f"{name} ({state_abbreviations.get(str(state), str(state))})"
+    for code, name, state in zip(
+        df["sa2_code"].astype(str),
+        df["sa2_name"].astype(str),
+        df["state"].astype(str),
     )
 }
 
+code_to_index = {
+    str(code): index
+    for index, code in enumerate(df["sa2_code"])
+}
 
-selected_sa2 = (
-    st.sidebar.selectbox(
-
+with st.sidebar.container(key="sidebar_lookup_card"):
+    selected_sa2 = st.selectbox(
         "Reference suburb",
-
         options=sa2_codes,
-
-        format_func=lambda code:
-            display_lookup[
-                code
-            ],
-
+        format_func=lambda code: display_lookup[code],
         disabled=not lookup_allowed
     )
-)
 
+    reference_index = code_to_index[selected_sa2]
 
-reference_index = (
-    code_to_index[
-        selected_sa2
-    ]
-)
+    # ========================================================
+    # NUMBER OF MATCHES
+    # ========================================================
+    max_matches = tier_config["max_matches"]
+    default_matches = min(10, max_matches)
 
-
-# ============================================================
-# NUMBER OF MATCHES
-# ============================================================
-
-max_matches = (
-    tier_config[
-        "max_matches"
-    ]
-)
-
-
-default_matches = min(
-    10,
-    max_matches
-)
-
-
-top_n = (
-    st.sidebar.slider(
-
+    top_n = st.slider(
         "Number of matches",
-
         min_value=1,
-
         max_value=max_matches,
-
         value=default_matches,
-
         step=1,
-
         disabled=not lookup_allowed
     )
-)
 
 
 # ============================================================
 # HYBRID BLEND
 # ============================================================
 
-st.sidebar.subheader(
-    "Hybrid Blend"
-)
-
-
-alpha = (
-    st.sidebar.slider(
-
-        "Gemini influence (alpha)",
-
-        min_value=0.0,
-
-        max_value=1.0,
-
-        value=0.2,
-
-        step=0.05,
-
-        disabled=not lookup_allowed
-    )
-)
-
-
-st.sidebar.caption(
-    f"Numeric influence: "
-    f"{1 - alpha:.0%}"
-)
-
-
-st.sidebar.caption(
-    f"Gemini influence: "
-    f"{alpha:.0%}"
-)
-
-
-# ============================================================
-# PRO PRESETS - COMPACT ONE-LINE BUTTONS
-# ============================================================
-
-if tier_config["presets_enabled"]:
-
-    st.sidebar.markdown(
-        '<div class="sidebar-label">Presets</div>',
+with st.sidebar.container(key="sidebar_blend_card"):
+    st.markdown(
+        """
+<div class="sidebar-card-heading">
+    <div>
+        <div class="sidebar-card-title">Hybrid similarity</div>
+        <div class="sidebar-card-copy">Tune the numeric and AI blend</div>
+    </div>
+    <div class="sidebar-ai-pill">AI</div>
+</div>
+""",
         unsafe_allow_html=True
     )
 
-    # Keep labels short so all four buttons remain on one line.
+    alpha = st.slider(
+        "Gemini influence (alpha)",
+        min_value=0.0,
+        max_value=1.0,
+        value=0.2,
+        step=0.05,
+        disabled=not lookup_allowed
+    )
+
+    st.markdown(
+        f"""
+<div class="blend-summary">
+    <div class="blend-stat">
+        <span>Numeric</span>
+        <strong>{1 - alpha:.0%}</strong>
+    </div>
+    <div class="blend-divider"></div>
+    <div class="blend-stat">
+        <span>Gemini AI</span>
+        <strong>{alpha:.0%}</strong>
+    </div>
+</div>
+""",
+        unsafe_allow_html=True
+    )
+
+
+# ============================================================
+# PRO PRESETS - COMPACT BUTTONS
+# ============================================================
+
+if tier_config["presets_enabled"]:
+    st.sidebar.markdown(
+        '<div class="sidebar-section-title sidebar-presets-title">PRESETS</div>',
+        unsafe_allow_html=True
+    )
+
     preset_labels = {
         "Balanced": "Balanced",
         "Family-focused": "Family",
@@ -681,17 +740,16 @@ if tier_config["presets_enabled"]:
         if name in WEIGHT_PRESETS
     ]
 
-    # Include any extra preset names without breaking the application.
     for name in WEIGHT_PRESETS:
         if name not in available_presets:
             available_presets.append(name)
             preset_labels[name] = name
 
-    preset_cols = st.sidebar.columns(len(available_presets), gap="small")
+    preset_cols = st.sidebar.columns(2, gap="small")
     active_preset = st.session_state.get("current_preset", "Balanced")
 
-    for preset_col, preset_name in zip(preset_cols, available_presets):
-        with preset_col:
+    for index, preset_name in enumerate(available_presets):
+        with preset_cols[index % 2]:
             is_active = preset_name == active_preset
             if st.button(
                 preset_labels[preset_name],
@@ -708,10 +766,10 @@ if tier_config["presets_enabled"]:
                 st.session_state["current_preset"] = preset_name
                 st.rerun()
 
-    st.sidebar.caption(
-        f"Active preset: {preset_labels.get(active_preset, active_preset)}"
+    st.sidebar.markdown(
+        f'<div class="active-preset"><span>✓</span> {preset_labels.get(active_preset, active_preset)} preset active</div>',
+        unsafe_allow_html=True
     )
-
 else:
     st.sidebar.info("Weight presets are available on the Pro tier.")
 
@@ -738,6 +796,43 @@ with st.sidebar.expander(
             disabled=not lookup_allowed
         )
 
+
+# ============================================================
+# DETERMINE ACTIVE PRESET
+# ============================================================
+
+def get_active_preset_name(
+    weights: dict
+) -> str:
+
+    current_preset = st.session_state.get(
+        "current_preset",
+        "Balanced"
+    )
+
+    try:
+        preset_weights = get_preset(
+            current_preset
+        )
+
+        for kpi in KPI_COLS:
+
+            if abs(
+                float(weights[kpi])
+                - float(preset_weights[kpi])
+            ) > 1e-9:
+
+                return "Custom"
+
+        return current_preset
+
+    except (KeyError, ValueError):
+        return "Custom"
+
+
+active_preset_name = get_active_preset_name(
+    weights
+)
 
 # ============================================================
 # WEIGHT NUMERIC MATRIX
@@ -822,6 +917,45 @@ with summary_col4:
         unsafe_allow_html=True
     )
 
+# ============================================================
+# OBSERVABLE FAISS LOOKUP
+# ============================================================
+
+@trace_lookup
+def run_observed_lookup(request: dict) -> dict:
+    """
+    Run the FAISS lookup while capturing
+    structured observability information.
+    """
+
+    start_time = time.perf_counter()
+
+    faiss_index, X_faiss = build_faiss_index(
+        request["X_hybrid"]
+    )
+
+    results = faiss_find_top_n(
+        request["df"],
+        faiss_index,
+        X_faiss,
+        request["reference_index"],
+        n=request["n_matches"]
+    )
+
+    latency_ms = (
+        time.perf_counter() - start_time
+    ) * 1000
+
+    return {
+        "results": results,
+        "reference_sa2_code": request["reference_sa2_code"],
+        "reference_suburb": request["reference_suburb"],
+        "state": request["state"],
+        "alpha": request["alpha"],
+        "preset": request["preset"],
+        "n_matches": request["n_matches"],
+        "latency_ms": round(latency_ms, 2),
+    }
 
 # ============================================================
 # FIND LOOKALIKES BUTTON
@@ -854,19 +988,42 @@ if find_clicked:
             "Finding similar suburbs..."
         ):
 
-            # Rebuild the exact FAISS index because the KPI
-            # weights and alpha can change the hybrid vectors.
-            faiss_index, X_faiss = build_faiss_index(
-                X_hybrid
+            lookup_output = run_observed_lookup(
+                {
+                    "df": df,
+                    "X_hybrid": X_hybrid,
+
+                    "reference_index": reference_index,
+
+                    "reference_sa2_code": str(
+                        reference["sa2_code"]
+                    ),
+
+                    "reference_suburb": str(
+                        reference["sa2_name"]
+                    ),
+
+                    "state": str(
+                        reference["state"]
+                    ),
+
+                    "weights": weights.copy(),
+
+                    "preset": active_preset_name,
+
+                    "alpha": float(alpha),
+
+                    "n_matches": int(top_n),
+
+                    "user_id": str(
+                        user["user_id"]
+                    ),
+
+                    "tier": tier,
+                }
             )
 
-            results = faiss_find_top_n(
-                df,
-                faiss_index,
-                X_faiss,
-                reference_index,
-                n=top_n
-            )
+            results = lookup_output["results"]
 
             explained_results = explain_results(
                 df,

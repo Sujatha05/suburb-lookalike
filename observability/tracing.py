@@ -22,26 +22,15 @@ load_dotenv()
 def is_langsmith_enabled() -> bool:
     """
     Return True when LangSmith tracing is enabled.
-
-    Expected .env settings:
-
-    LANGSMITH_TRACING=true
-    LANGSMITH_API_KEY=...
-    LANGSMITH_PROJECT=suburb-lookalike
     """
 
     tracing_value = (
-        os.getenv(
-            "LANGSMITH_TRACING",
-            "false"
-        )
+        os.getenv("LANGSMITH_TRACING", "false")
         .strip()
         .lower()
     )
 
-    api_key = os.getenv(
-        "LANGSMITH_API_KEY"
-    )
+    api_key = os.getenv("LANGSMITH_API_KEY")
 
     return (
         tracing_value == "true"
@@ -57,15 +46,12 @@ def _safe_lookup_inputs(
     inputs: dict[str, Any]
 ) -> dict[str, Any]:
     """
-    Remove large objects from LangSmith traces.
+    Keep only small lookup configuration values
+    in LangSmith.
 
-    We do NOT want to upload:
-    - complete pandas DataFrame
-    - numeric feature matrix
-    - text embedding matrix
-    - hybrid matrix
-
-    Only small lookup configuration values should be traced.
+    Large objects such as DataFrames, numeric matrices,
+    embeddings and hybrid matrices are intentionally
+    excluded.
     """
 
     request = inputs.get(
@@ -73,26 +59,21 @@ def _safe_lookup_inputs(
         inputs
     )
 
-    if not isinstance(
-        request,
-        dict
-    ):
+    if not isinstance(request, dict):
         return {
             "request": str(request)
         }
-
 
     weights = request.get(
         "weights",
         {}
     )
 
-
     return {
 
-        "reference_index":
+        "reference_sa2_code":
             request.get(
-                "reference_index"
+                "reference_sa2_code"
             ),
 
         "alpha":
@@ -133,21 +114,17 @@ def _safe_lookup_outputs(
     outputs: Any
 ) -> dict[str, Any]:
     """
-    Convert the lookup result into a small,
+    Convert lookup output into a small,
     LangSmith-friendly representation.
 
-    The actual function still returns the full result
-    to Streamlit. This only controls what LangSmith sees.
+    Streamlit still receives the full result.
+    This function only controls what LangSmith records.
     """
 
-    if not isinstance(
-        outputs,
-        dict
-    ):
+    if not isinstance(outputs, dict):
         return {
             "result": str(outputs)
         }
-
 
     safe_output = {
 
@@ -180,23 +157,23 @@ def _safe_lookup_outputs(
             outputs.get(
                 "n_matches"
             ),
+
+        "latency_ms":
+            outputs.get(
+                "latency_ms"
+            ),
     }
 
 
     # --------------------------------------------------------
-    # Store only the small results table in LangSmith.
-    # Do NOT store internal matrices.
+    # SAFE SEARCH RESULTS
     # --------------------------------------------------------
 
     results = outputs.get(
         "results"
     )
 
-
-    if isinstance(
-        results,
-        pd.DataFrame
-    ):
+    if isinstance(results, pd.DataFrame):
 
         useful_columns = [
             col
@@ -210,24 +187,40 @@ def _safe_lookup_outputs(
             if col in results.columns
         ]
 
-
-        safe_output[
-            "matches"
-        ] = (
+        safe_results = (
             results[
                 useful_columns
             ]
             .head(25)
+        )
+
+        # Detailed but small result representation
+        safe_output["matches"] = (
+            safe_results
             .to_dict(
                 orient="records"
             )
         )
 
+        # Explicit neighbour-code list
+        if "sa2_code" in safe_results.columns:
+
+            safe_output["neighbour_codes"] = (
+                safe_results[
+                    "sa2_code"
+                ]
+                .astype(str)
+                .tolist()
+            )
+
+        else:
+
+            safe_output["neighbour_codes"] = []
+
     else:
 
-        safe_output[
-            "matches"
-        ] = results
+        safe_output["matches"] = results
+        safe_output["neighbour_codes"] = []
 
 
     return safe_output
@@ -241,10 +234,10 @@ def trace_lookup(
     function: Callable
 ) -> Callable:
     """
-    Add LangSmith tracing to the complete suburb
-    lookalike lookup.
+    Add LangSmith tracing to a complete
+    suburb-lookalike lookup.
 
-    Usage:
+    Example:
 
         @trace_lookup
         def run_lookup(request):
@@ -262,7 +255,7 @@ def trace_lookup(
 
 
 # ============================================================
-# LANGCHAIN / LANGSMITH CONFIG
+# OPTIONAL TRACE CONFIG
 # ============================================================
 
 def build_trace_config(
@@ -271,44 +264,22 @@ def build_trace_config(
     preset: str | None = None,
 ) -> dict:
     """
-    Build metadata and tags that can be supplied when
-    invoking the LangChain lookup chain.
+    Build optional metadata and tags for LangSmith.
 
-    Example:
-
-        lookup_chain.invoke(
-            request,
-            config=build_trace_config(
-                user_id="USER123",
-                tier="pro",
-                preset="Investor"
-            )
-        )
+    This is not required for the basic traced
+    Python lookup.
     """
 
     metadata = {}
 
-
     if user_id is not None:
-
-        metadata[
-            "user_id"
-        ] = str(user_id)
-
+        metadata["user_id"] = str(user_id)
 
     if tier is not None:
-
-        metadata[
-            "tier"
-        ] = str(tier)
-
+        metadata["tier"] = str(tier)
 
     if preset is not None:
-
-        metadata[
-            "preset"
-        ] = str(preset)
-
+        metadata["preset"] = str(preset)
 
     tags = [
         "suburb-lookalike",
@@ -316,16 +287,12 @@ def build_trace_config(
         "hybrid-similarity",
     ]
 
-
     if tier:
-
         tags.append(
             f"tier:{tier}"
         )
 
-
     return {
-
         "run_name":
             "suburb-lookalike-lookup",
 
