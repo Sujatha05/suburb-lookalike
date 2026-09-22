@@ -47,7 +47,7 @@ TOP_N = 10
 
 
 # ============================================================
-# K-MEANS CLUSTERING
+# K-MEANS ARCHETYPE ASSIGNMENT
 # ============================================================
 
 def cluster_suburbs(
@@ -56,7 +56,11 @@ def cluster_suburbs(
     random_state: int = RANDOM_STATE,
 ) -> np.ndarray:
     """
-    Assign each suburb to a K-Means cluster.
+    Assign each suburb to a K-Means archetype.
+
+    The underlying algorithm is K-Means clustering,
+    but the resulting groups are referred to as
+    suburb archetypes.
     """
 
     if X is None or len(X) == 0:
@@ -94,7 +98,8 @@ def evaluate_k_values(
     max_k: int = MAX_K,
 ) -> pd.DataFrame:
     """
-    Evaluate K values using:
+    Evaluate possible numbers of suburb archetypes
+    using:
 
     - K-Means inertia
     - Silhouette score
@@ -112,7 +117,7 @@ def evaluate_k_values(
 
     results = []
 
-    print("\nEvaluating K values...")
+    print("\nEvaluating archetype counts...")
     print("-" * 70)
 
     for k in range(
@@ -137,14 +142,14 @@ def evaluate_k_values(
 
         results.append(
             {
-                "k": k,
+                "archetypes": k,
                 "inertia": inertia,
                 "silhouette_score": silhouette,
             }
         )
 
         print(
-            f"K = {k:2d} | "
+            f"Archetypes = {k:2d} | "
             f"Inertia = {inertia:,.2f} | "
             f"Silhouette = {silhouette:.4f}"
         )
@@ -153,49 +158,50 @@ def evaluate_k_values(
 
 
 # ============================================================
-# SELECT BEST K
+# SELECT BEST NUMBER OF ARCHETYPES
 # ============================================================
 
 def select_best_k(
     results: pd.DataFrame,
 ) -> int:
     """
-    Select K with the highest silhouette score.
+    Select the number of archetypes with the
+    highest silhouette score.
     """
 
     if results.empty:
         raise ValueError(
-            "No K evaluation results available."
+            "No archetype evaluation results available."
         )
 
     best_row = results.loc[
         results["silhouette_score"].idxmax()
     ]
 
-    return int(best_row["k"])
+    return int(best_row["archetypes"])
 
 
 # ============================================================
-# ADD CLUSTER LABELS
+# ADD ARCHETYPE LABELS
 # ============================================================
 
-def add_cluster_labels(
+def add_archetype_labels(
     df: pd.DataFrame,
     labels: np.ndarray,
 ) -> pd.DataFrame:
     """
-    Add K-Means cluster labels to the DataFrame.
+    Add K-Means archetype labels to the DataFrame.
     """
 
     result = df.copy()
 
     if len(result) != len(labels):
         raise ValueError(
-            "Number of labels does not match "
+            "Number of archetype labels does not match "
             "number of suburbs."
         )
 
-    result["cluster"] = labels
+    result["archetype"] = labels
 
     return result
 
@@ -230,26 +236,26 @@ def find_top_similar_suburbs(
     df: pd.DataFrame,
     X: np.ndarray,
     suburb_index: int,
-    cluster_id: int,
+    archetype_id: int,
     top_n: int = TOP_N,
 ) -> pd.DataFrame:
     """
     Find the Top N numerically similar suburbs
-    within the selected suburb's K-Means cluster.
+    within the selected suburb's archetype.
 
     Similarity is calculated using cosine similarity
     on the standardised KPI feature vectors.
     """
 
     # --------------------------------------------------------
-    # Get all rows belonging to the selected cluster
+    # Get all rows belonging to the selected archetype
     # --------------------------------------------------------
 
-    cluster_indices = np.where(
-        df["cluster"].to_numpy() == cluster_id
+    archetype_indices = np.where(
+        df["archetype"].to_numpy() == archetype_id
     )[0]
 
-    if len(cluster_indices) == 0:
+    if len(archetype_indices) == 0:
         return pd.DataFrame()
 
     # --------------------------------------------------------
@@ -261,11 +267,11 @@ def find_top_similar_suburbs(
     ].reshape(1, -1)
 
     # --------------------------------------------------------
-    # Vectors for suburbs in same cluster
+    # Vectors for suburbs in same archetype
     # --------------------------------------------------------
 
-    cluster_vectors = X[
-        cluster_indices
+    archetype_vectors = X[
+        archetype_indices
     ]
 
     # --------------------------------------------------------
@@ -274,7 +280,7 @@ def find_top_similar_suburbs(
 
     similarities = cosine_similarity(
         reference_vector,
-        cluster_vectors,
+        archetype_vectors,
     )[0]
 
     # --------------------------------------------------------
@@ -283,7 +289,7 @@ def find_top_similar_suburbs(
 
     results = pd.DataFrame(
         {
-            "index": cluster_indices,
+            "index": archetype_indices,
             "similarity": similarities,
         }
     )
@@ -341,7 +347,7 @@ def find_top_similar_suburbs(
 def main() -> None:
 
     print("=" * 70)
-    print("DEMOGRAFY SUBURB CLUSTERING + TOP 10 SIMILAR SUBURBS")
+    print("DEMOGRAFY SUBURB ARCHETYPE ANALYSIS")
     print("=" * 70)
 
     # ========================================================
@@ -353,6 +359,9 @@ def main() -> None:
     client = get_bigquery_client()
 
     df = load_features(client)
+
+    # Ensure DataFrame row positions align with X
+    df = df.reset_index(drop=True)
 
     print(
         f"Loaded {len(df):,} suburbs."
@@ -394,11 +403,11 @@ def main() -> None:
         )
 
     # ========================================================
-    # FIND BEST K
+    # FIND BEST NUMBER OF ARCHETYPES
     # ========================================================
 
     print("\n" + "=" * 70)
-    print("FINDING A SUITABLE NUMBER OF CLUSTERS")
+    print("FINDING A SUITABLE NUMBER OF SUBURB ARCHETYPES")
     print("=" * 70)
 
     k_results = evaluate_k_values(
@@ -412,13 +421,13 @@ def main() -> None:
     )
 
     best_row = k_results[
-        k_results["k"] == best_k
+        k_results["archetypes"] == best_k
     ].iloc[0]
 
     print("\n" + "-" * 70)
 
     print(
-        f"Selected K: {best_k}"
+        f"Selected number of archetypes: {best_k}"
     )
 
     print(
@@ -427,8 +436,8 @@ def main() -> None:
     )
 
     print(
-        "\nK was selected using the highest "
-        "silhouette score."
+        "\nThe number of archetypes was selected "
+        "using the highest silhouette score."
     )
 
     # ========================================================
@@ -437,7 +446,7 @@ def main() -> None:
 
     print("\n" + "=" * 70)
     print(
-        f"RUNNING FINAL K-MEANS WITH K = {best_k}"
+        f"RUNNING K-MEANS WITH {best_k} SUBURB ARCHETYPES"
     )
     print("=" * 70)
 
@@ -447,32 +456,32 @@ def main() -> None:
         random_state=RANDOM_STATE,
     )
 
-    clustered_df = add_cluster_labels(
+    archetype_df = add_archetype_labels(
         df,
         labels,
     )
 
     # ========================================================
-    # CLUSTER SUMMARY
+    # ARCHETYPE SUMMARY
     # ========================================================
 
     summary = (
-        clustered_df
-        .groupby("cluster")
+        archetype_df
+        .groupby("archetype")
         .size()
         .reset_index(
             name="suburb_count"
         )
-        .sort_values("cluster")
+        .sort_values("archetype")
     )
 
-    print("\nCluster summary:")
+    print("\nArchetype summary:")
     print("-" * 40)
 
     for _, row in summary.iterrows():
 
-        cluster_id = int(
-            row["cluster"]
+        archetype_id = int(
+            row["archetype"]
         )
 
         suburb_count = int(
@@ -480,7 +489,7 @@ def main() -> None:
         )
 
         print(
-            f"Cluster {cluster_id}: "
+            f"Archetype {archetype_id}: "
             f"{suburb_count:,} suburbs"
         )
 
@@ -507,7 +516,7 @@ def main() -> None:
     # ========================================================
 
     match = find_suburb(
-        clustered_df,
+        archetype_df,
         suburb_name,
     )
 
@@ -522,8 +531,8 @@ def main() -> None:
             "\nPossible matches:"
         )
 
-        partial = clustered_df[
-            clustered_df["sa2_name"]
+        partial = archetype_df[
+            archetype_df["sa2_name"]
             .astype(str)
             .str.lower()
             .str.contains(
@@ -553,17 +562,17 @@ def main() -> None:
         return
 
     # ========================================================
-    # FIND ORIGINAL ROW INDEX
+    # FIND ORIGINAL ROW POSITION
     # ========================================================
 
     selected_index = match.index[0]
 
-    selected = clustered_df.loc[
+    selected = archetype_df.loc[
         selected_index
     ]
 
-    cluster_id = int(
-        selected["cluster"]
+    archetype_id = int(
+        selected["archetype"]
     )
 
     # ========================================================
@@ -571,7 +580,7 @@ def main() -> None:
     # ========================================================
 
     print("\n" + "=" * 70)
-    print("SUBURB CLUSTER RESULT")
+    print("SUBURB ARCHETYPE RESULT")
     print("=" * 70)
 
     print(
@@ -587,7 +596,7 @@ def main() -> None:
         )
 
     print(
-        f"Cluster: {cluster_id}"
+        f"Archetype: {archetype_id}"
     )
 
     # ========================================================
@@ -595,10 +604,10 @@ def main() -> None:
     # ========================================================
 
     top_similar = find_top_similar_suburbs(
-        df=clustered_df,
+        df=archetype_df,
         X=X_numeric,
         suburb_index=selected_index,
-        cluster_id=cluster_id,
+        archetype_id=archetype_id,
         top_n=TOP_N,
     )
 
@@ -607,14 +616,14 @@ def main() -> None:
     # ========================================================
 
     print("\n" + "=" * 70)
-    print("TOP 10 SIMILAR SUBURBS")
+    print("TOP 10 SIMILAR SUBURBS WITHIN ARCHETYPE")
     print("=" * 70)
 
     if top_similar.empty:
 
         print(
             "\nNo other suburbs were found "
-            "in the selected cluster."
+            "in the selected archetype."
         )
 
     else:
@@ -637,7 +646,7 @@ def main() -> None:
 
     print("\n" + "=" * 70)
     print(
-        "Clustering and similarity search completed."
+        "Archetype analysis and similarity search completed."
     )
     print("=" * 70)
 
@@ -648,6 +657,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
-
 
